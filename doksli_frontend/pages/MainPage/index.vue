@@ -3,9 +3,7 @@
 </template>
 
 <script>
-
 export default {
-  // layout: 'BottomNavigation',
-  middleware: ['redirect','guests'],
+  middleware: 'redirect',
 }
 </script>

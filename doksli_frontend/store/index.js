@@ -1,18 +1,17 @@
 import Cookies from 'cookie-universal-nuxt'
+import axios from 'axios'
 
 export const state = () => ({
   auth: {
-    loggedIn: false,
+    loggedIn: null,
     user: null,
     token: null,
   },
 })
 
 export const mutations = {
-  SET_AUTH(state, { loggedIn, user, token }) {
-    state.auth.loggedIn = loggedIn
-    state.auth.user = user
-    state.auth.token = token
+  SET_AUTH(state, payload) {
+    state.auth.loggedIn = payload
   },
   RESET_AUTH(state) {
     state.auth.loggedIn = false

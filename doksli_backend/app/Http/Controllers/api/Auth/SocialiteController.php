@@ -16,42 +16,52 @@ class SocialiteController extends Controller
         try {
             return Socialite::driver($provider)->redirect();
         } catch (\Throwable $th) {
-            return response()->json(['data'=>$th]);
+            return response()->json(['data' => $th]);
         }
     }
 
     public function handleProviderCallback($provider)
-    {
-        try {
-            $user = Socialite::driver($provider)->stateless()->user();
-        // } catch (\Throwable $th) {
-        } catch (Exception $e) {
-            // echo $e;
-           
-            // return redirect()->back();
-            // return redirect('/login');
-        }
-
-        $authUser = $this->findOrCreateUser($user, $provider);
-
-        Auth::login($authUser, true);
-
-        $token = $authUser->createToken('authToken')->plainTextToken;
-
-    return redirect(env('CLIENT_BASE_URL') . '/auth/social-callback?token=' . $token . '&origin=' . ($user ? 'register' : 'login'));
-        
+{
+    try {
+        $user = Socialite::driver($provider)->stateless()->user();
+    } catch (Exception $e) {
+        // Handle the exception as needed
+        return response()->json(['error' => 'Social login failed']);
     }
+
+    $authUser = $this->findOrCreateUser($user, $provider);
+
+    Auth::login($authUser, true);
+
+    $token = $authUser->createToken('authToken')->plainTextToken;
+
+    // Additional data to be passed to the front-end
+    $additionalData = [
+        'email' => $authUser->email,
+        'remember_token' => $authUser->remember_token,
+    ];
+
+    // Append provider information and additional data to the redirect URL
+    $redirectUrl = env('CLIENT_BASE_URL') . '/auth/social-callback?token=' . $token . '&origin=' . ($user ? 'register' : 'login') . '&provider=' . $provider;
+
+    // Append additional data to the redirect URL
+    foreach ($additionalData as $key => $value) {
+        $redirectUrl .= "&{$key}={$value}";
+    }
+
+    return redirect($redirectUrl);
+}
+
 
     public function findOrCreateUser($socialUser, $provider)
     {
         $socialAccount = SocialAccount::where('provider_id', $socialUser->getId())->where('provider_name', $provider)->first();
 
-
         if ($socialAccount) {
             return $socialAccount->user;
         } else {
             $randomNumber = rand(1, 100);
-            $userName = 'User_' . $randomNumber;    
+            $userName = 'User_' . $randomNumber;
 
             $user = User::where('email', $socialUser->getEmail())->first();
 

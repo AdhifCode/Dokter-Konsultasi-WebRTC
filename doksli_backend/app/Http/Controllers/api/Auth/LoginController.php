@@ -25,10 +25,6 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
         
-        // $loginIdentifierField = filter_var($request->input('loginIdentifier'), FILTER_VALIDATE_EMAIL)
-        //     ? 'email'
-        //     : 'name';
-        
         $credentials = [
             'email' => $request->input('email'),
             'password' => $request->input('password'),
@@ -50,4 +46,31 @@ class LoginController extends Controller
         ]);
         
     }
+    public function loginSocialite(Request $request)
+{
+    $request->validate([
+        'email' => 'required|string',
+        'remember_token' => 'required|string',
+    ]);
+
+    $user = User::where('email', $request->input('email'))->first();
+
+    if (!$user) {
+        $user = User::create([
+            'email' => $request->input('email'),
+            'remember_token' => $request->input('remember_token'),
+        ]);
+    }
+
+    Auth::login($user, true);
+
+    $token = $user->createToken('authToken')->plainTextToken;
+
+    return response()->json([
+        'success' => true,
+        'data' => $user,
+        'token' => $token,
+    ], 200);
+}
+
 }

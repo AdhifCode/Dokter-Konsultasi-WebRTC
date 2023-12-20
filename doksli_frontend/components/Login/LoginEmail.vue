@@ -35,8 +35,8 @@
 export default {
   data() {
     return {
-      email: '',
-      password: '',
+      email: 'admin@gmail.com',
+      password: '12345678',
       showPassword: false,
     }
   },
@@ -52,8 +52,9 @@ export default {
         })
 
         if (response.status === 200) {
-          // Login successful
           console.log('Login successful')
+          this.$cookies.set('loginCookie', 'Berhasil')
+          this.$store.dispatch('users/login', response)
           console.log(response.data)
         } else {
           console.error('Login failed')

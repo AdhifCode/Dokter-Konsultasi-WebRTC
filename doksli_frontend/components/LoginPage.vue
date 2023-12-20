@@ -13,11 +13,11 @@
       </v-img>
     </div>
     <div class="ma-2">
-      <template>
+      <template v-if="!showSignIn">
         <LoginChoose @activateSignIn="activateSignIn" />
       </template>
-      <template>
-        <SignInChoose v-if="showSignIn" />
+      <template v-else>
+        <SignInChoose @nonActiveSignIn="nonActiveSignIn" />
       </template>
     </div>
   </v-card>
@@ -38,6 +38,9 @@ export default {
   methods: {
     activateSignIn() {
       this.showSignIn = true
+    },
+    nonActiveSignIn() {
+      this.showSignIn = false
     },
   },
 }

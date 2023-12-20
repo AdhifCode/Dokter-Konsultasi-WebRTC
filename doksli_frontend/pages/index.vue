@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NavbarLanding style="position: fixed" />
+    <NavbarLanding ref="navbarLanding" />
     <div class="LandingFirst">
       <v-container
         ><v-row>
@@ -22,6 +22,7 @@
                 class="text-capitalize white"
                 width="140px"
                 height="55px"
+                @click="goToConsule()"
                 style="border-radius: 15px; color: #0c8ce9"
                 elevation="0"
                 >Consule Now</v-btn
@@ -30,32 +31,41 @@
 
             <div class="d-flex pt-16" style="gap: 40px">
               <v-card
+                v-for="(status, index) in statusItem"
+                :key="index"
                 outlined
                 style="border-radius: 15px"
                 width="125px"
                 height="150px"
               >
-                <v-icon>mdi-phone</v-icon><v-card-title>Doctors</v-card-title
-                ><v-card-text>{{ DoctorCounts }}</v-card-text></v-card
-              >
-              <v-card style="border-radius: 15px" width="125px" height="150px"
-                ><v-icon>mdi-phone</v-icon><v-card-title>Patients</v-card-title
-                ><v-card-text>{{ PatientsCounts }}</v-card-text></v-card
-              >
-              <v-card style="border-radius: 15px" width="125px" height="150px"
-                ><v-icon>mdi-phone</v-icon
-                ><v-card-title>Consultations</v-card-title
-                ><v-card-text>{{ ConsuletateCounts }}</v-card-text></v-card
+                <v-card-actions class="justify-center">
+                  <v-btn
+                    fab
+                    depressed
+                    :ripple="false"
+                    dark
+                    large
+                    :color="status.iconBackground"
+                    ><v-icon dark x-large>{{ status.icon }}</v-icon></v-btn
+                  ></v-card-actions
+                ><v-card-title
+                  class="pa-0 justify-center"
+                  :style="{ color: status.iconBackground }"
+                  >{{ status.Counts }}</v-card-title
+                ><v-card-title
+                  class="pa-1 justify-center"
+                  :style="{ color: status.iconBackground }"
+                  >{{ status.title }}</v-card-title
+                ></v-card
               >
             </div>
           </v-col>
-          <v-col class="col-5"
-            ><v-img
+          <v-col class="col-5 d-flex align-center">
+            <v-img
               :src="require('@/assets/img/Doctor_1_Edited.png')"
               style="border-radius: 20px 0px 0px 20px"
-            >
-            </v-img
-          ></v-col> </v-row
+            ></v-img>
+          </v-col> </v-row
       ></v-container>
       <div class="custom-shape-divider-bottom-1701135255">
         <svg
@@ -206,7 +216,7 @@
               class="text-capitalize white"
               width="140px"
               height="55px"
-              to="/admin"
+              to="/join-doctor"
               >Click Here To Apply</v-btn
             >
           </v-col>
@@ -219,21 +229,55 @@
           ></v-col> </v-row
       ></v-container>
     </div>
+    <Footer />
   </div>
 </template>
 
 <script>
 import NavbarLanding from '../components/NavbarLanding.vue'
+import Footer from '../components/Footer.vue'
 
 export default {
-  components: { NavbarLanding },
-  middleware: 'authenticated',
+  components: { NavbarLanding, Footer },
+  // middleware: ['authenticated'],
   data() {
     return {
-      ConsuletateCounts: 40,
-      DoctorCounts: 4,
-      PatientsCounts: 90,
+      statusItem: [
+        {
+          title: 'Doctors',
+          Counts: 4,
+          icon: 'mdi-doctor',
+          iconBackground: '#31C9A2',
+        },
+        {
+          title: 'Patients',
+          Counts: 90,
+          icon: 'mdi-account-injury',
+          iconBackground: '#FF6B82',
+        },
+        {
+          title: 'Consuls',
+          Counts: 40,
+          icon: 'mdi-information',
+          iconBackground: '#9675F7',
+        },
+      ],
     }
+  },
+  methods: {
+    goToConsule() {
+      const cookieExists = this.$cookies.get('loginCookie')
+      if (!cookieExists) {
+        const navbarLanding = this.$refs.navbarLanding
+        if (navbarLanding) {
+          navbarLanding.dialogLogin = true
+        } else {
+          console.error('NavbarLanding component not found.')
+        }
+      } else {
+        this.$router.push('/MainPage')
+      }
+    },
   },
 }
 </script>

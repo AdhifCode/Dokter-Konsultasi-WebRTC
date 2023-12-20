@@ -36,6 +36,18 @@
           </option>
         </select>
 
+        Speaker :
+        <select v-model="selectedSpeaker" @change="onChange">
+          <option disabled value="">Please select one</option>
+          <option
+            v-for="(speaker, key, index) in speakers"
+            v-bind:key="index"
+            :value="speaker.value"
+          >
+            {{ speaker.text }}
+          </option>
+        </select>
+
         <div>
           <p>
             Your id: <span id="my-id">{{ peerId }}</span>
@@ -58,8 +70,10 @@ export default {
       APIKey: 'abe02cb1-4e86-49d6-87f0-d682a3fd6a5f',
       selectedAudio: '',
       selectedVideo: '',
+      selectedSpeaker: '',
       audios: [],
       videos: [],
+      speakers: [],
       localStream: null,
       peerId: '',
       calltoid: '',
@@ -68,7 +82,11 @@ export default {
 
   methods: {
     onChange: function () {
-      if (this.selectedAudio != '' && this.selectedVideo != '') {
+      if (
+        this.selectedAudio != '' &&
+        this.selectedVideo != '' &&
+        this.selectedSpeaker != ''
+      ) {
         this.connectLocalCamera()
       }
     },
@@ -80,6 +98,9 @@ export default {
           : false,
         video: this.selectedVideo
           ? { deviceId: { exact: this.selectedVideo } }
+          : false,
+        speaker: this.selectedSpeaker
+          ? { deviceId: { exact: this.selectedSpeaker } }
           : false,
       }
 
@@ -113,11 +134,6 @@ export default {
       this.peerId = this.peer.id
     })
 
-    this.peer.on('call', (call) => {
-      call.answer(this.localStream)
-      this.connect(call)
-    })
-
     navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
       for (let i = 0; i !== deviceInfos.length; ++i) {
         const deviceInfo = deviceInfos[i]
@@ -126,13 +142,30 @@ export default {
             text: deviceInfo.label || `Microphone ${this.audios.length + 1}`,
             value: deviceInfo.deviceId,
           })
+          if (!this.selectedAudio) {
+            this.selectedAudio = deviceInfo.deviceId
+          }
         } else if (deviceInfo.kind === 'videoinput') {
           this.videos.push({
-            text: deviceInfo.label || `Camera  ${this.videos.length - 1}`,
+            text: deviceInfo.label || `Camera  ${this.videos.length + 1}`,
             value: deviceInfo.deviceId,
           })
+          if (!this.selectedVideo) {
+            this.selectedVideo = deviceInfo.deviceId
+          }
+        } else if (deviceInfo.kind === 'audiooutput') {
+          this.speakers.push({
+            text: deviceInfo.label || `Speaker ${this.speakers.length + 1}`,
+            value: deviceInfo.deviceId,
+          })
+          if (!this.selectedSpeaker) {
+            this.selectedSpeaker = deviceInfo.deviceId
+          }
         }
       }
+
+      // Automatically connect to the default devices
+      this.connectLocalCamera()
     })
   },
 }

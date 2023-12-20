@@ -3,10 +3,10 @@
     <template v-if="showLoginChoose">
       <div class="pt-8">
         <div class="pb-8">
-          <h1>Create a new account?</h1>
+          <h1>Sign in to your account</h1>
           <h3>
-            Already have an account?
-            <a @click.prevent="switchToSignIn">Sign in</a>
+            Don’t have an account?
+            <a @click.prevent="switchToSignIn">Join Here</a>
           </h3>
         </div>
         <div class="pt-8 pb-2">

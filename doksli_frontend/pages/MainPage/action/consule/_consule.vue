@@ -3,7 +3,20 @@
     <v-btn icon @click="goBack" :ripple="false">
       <v-icon left> mdi-arrow-left </v-icon>
     </v-btn>
-    <div><v-img :src="'@/assets/img/profile.jpg'"></v-img></div>
+    <div class="d-flex">
+      <v-avatar height="200px" width="200px">
+        <img
+          :src="require('@/assets/img/profile.jpg')"
+          alt="John"
+          style="object-fit: cover"
+        />
+      </v-avatar>
+      <div>
+        <div>Hallo</div>
+        <div>Dokter Kejang</div>
+        <div class="d-flex"><v-icon>mdi-briefcase</v-icon>4 Tahun</div>
+      </div>
+    </div>
   </v-container>
 </template>
 

@@ -50,10 +50,15 @@
               @click="toconsule(cardItem)"
             >
               <v-img
+                v-if="$vuetify.breakpoint.xs"
+                height="200px"
+                style="display: none"
+              ></v-img>
+              <v-img
+                v-else
                 :src="require(`@/assets/img/${cardItem.image}`)"
                 height="200px"
               ></v-img>
-
               <v-card-actions>
                 <v-list-item class="grow">
                   <v-list-item-avatar color="grey darken-3">
@@ -70,13 +75,9 @@
                     }}</v-list-item-title>
                   </v-list-item-content>
 
-                  <div
-                    class="pa-1"
-                    style="background-color: #0c8ce9; border-radius: 20px"
-                  >
-                    <v-icon class="mr-1">mdi-star</v-icon>
-                    <span class="subheading pr-2">5</span>
-                  </div>
+                  <v-btn icon depressed @click="addFavorite()" class="pa-1">
+                    <v-icon>mdi-heart</v-icon>
+                  </v-btn>
                 </v-list-item>
               </v-card-actions>
 
@@ -207,6 +208,7 @@
           :key="index"
           class="d-flex mt-2"
           elevation="0"
+          @click="room(cardItem.consule_id)"
         >
           <v-img></v-img>
           <div>{{ cardItem.title }}</div>
@@ -288,6 +290,7 @@ import DoctorSchedule from '~/components/DoctorSchedule.vue'
 
 export default {
   components: { DoctorSchedule },
+  middleware: ['authenticated'],
   // layout: 'BottomNavigation',
   data() {
     return {
@@ -494,6 +497,11 @@ export default {
     },
     pushing(data) {
       this.$router.push('/MainPage/action' + data)
+    },
+    room(id) {
+      console.log(cardItem.consule_id)
+      this.$store.commit('meet/setInputId', cardItem.consule_id)
+      this.$router.push('/MainPage/action/room')
     },
     search() {
       if (this.searchKeyword.trim() !== '') {
