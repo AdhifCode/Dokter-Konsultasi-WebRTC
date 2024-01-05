@@ -85,7 +85,7 @@
     </div>
     <div>
       <v-container
-        ><v-row
+        ><v-row justify="center" align="center"
           ><v-col>
             <v-img
               :src="require('@/assets/img/Landing_Img_3.png')"
@@ -94,40 +94,23 @@
               style="border-radius: 20px 0px 0px 20px"
             >
             </v-img> </v-col
-          ><v-col
-            ><h1 style="font-size: 32px">
-              Benefit from our online <br />consule
+          ><v-col>
+            <h1 style="font-size: 32px">
+              Benefit from our online <br />consultation
             </h1>
-            <div>
+            <div v-for="(benefit, index) in benefitItems" :key="index">
               <div class="d-flex">
+                <v-btn icon x-large depressed :ripple="false" plain>
+                  <v-icon>{{ benefit.icon }}</v-icon>
+                </v-btn>
                 <div>
-                  <v-icon>mdi-phone</v-icon>
-                </div>
-                <div>
-                  <h3>Online Consultation</h3>
-                  <p>Due tige empat lime, lu olang nampak macam buah delima</p>
+                  <h3>{{ benefit.title }}</h3>
+                  <p>{{ benefit.text }}</p>
                 </div>
               </div>
-              <div class="d-flex">
-                <div>
-                  <v-icon>mdi-phone</v-icon>
-                </div>
-                <div>
-                  <h3>Short article</h3>
-                  <p>Due tige empat lime, lu olang nampak macam buah delima</p>
-                </div>
-              </div>
-              <div class="d-flex">
-                <div>
-                  <v-icon>mdi-phone</v-icon>
-                </div>
-                <div>
-                  <h3>Consultate with experts</h3>
-                  <p>Due tige empat lime, lu olang nampak macam buah delima</p>
-                </div>
-              </div>
-            </div></v-col
-          >
+            </div>
+          </v-col>
+
           <div></div></v-row
       ></v-container>
     </div>
@@ -140,45 +123,71 @@
         <div class="d-flex justify-space-between">
           <div>
             <v-card
+              v-for="(cardItem, index) in top3"
+              :key="index"
               style="border-radius: 20px"
               elevation="4"
               width="360"
-              height="360"
-              ><v-img
-                :src="require('@/assets/img/Landing_Orthopedi.jpg')"
+              height="auto"
+            >
+              <v-img
+                v-if="$vuetify.breakpoint.xs"
                 height="200px"
-              ></v-img
-              ><v-card-actions>
+                style="display: none"
+              ></v-img>
+
+              <v-img
+                v-else
+                :src="`http://127.0.0.1:8000/storage/${cardItem.room_image}`"
+                height="200px"
+              ></v-img>
+
+              <v-card-actions>
                 <v-list-item class="grow">
                   <v-list-item-avatar color="grey darken-3">
                     <v-img
+                      :src="
+                        cardItem.user_image
+                          ? `http://127.0.0.1:8000/storage/${cardItem.user_image}`
+                          : require('@/assets/img/unknown.jpeg')
+                      "
                       class="elevation-6"
                       alt=""
-                      src="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
                     ></v-img>
                   </v-list-item-avatar>
 
                   <v-list-item-content>
-                    <v-list-item-title>Evan You</v-list-item-title>
+                    <v-list-item-title class="text-capitalize">{{
+                      cardItem.name
+                    }}</v-list-item-title>
                   </v-list-item-content>
-                  <div style="background-color: #0c8ce9; border-radius: 20px">
-                    <v-icon class="mr-1"> mdi-star </v-icon>
-                    <span class="subheading mr-2">5</span>
-                  </div>
-                </v-list-item> </v-card-actions
-              ><v-card-title>Orthopedi: Help u with ur skeleton</v-card-title>
+                  <v-row align="center" justify="end">
+                    <v-btn icon depressed color="red">
+                      <v-icon>mdi-heart</v-icon>
+                    </v-btn>
+                    <span class="subheading mr-2">{{
+                      cardItem.total_favorites
+                    }}</span>
+                  </v-row>
+                </v-list-item>
+              </v-card-actions>
+
+              <v-card-title>{{ cardItem.title }}</v-card-title>
+
               <v-card-actions>
                 <v-list-item class="grow">
                   <v-list-item-content>
-                    <v-list-item-title>Evan You</v-list-item-title>
+                    <v-list-item-title>{{ cardItem.name }}</v-list-item-title>
                   </v-list-item-content>
+
                   <div>
-                    <v-icon class="mr-1"> mdi-camera </v-icon>
-                    <span class="subheading mr-2">Video Call</span>
+                    <span class="subheading mr-2">{{
+                      cardItem.specialist
+                    }}</span>
                   </div>
                 </v-list-item>
-              </v-card-actions></v-card
-            >
+              </v-card-actions>
+            </v-card>
           </div>
           <div>
             <v-card
@@ -216,7 +225,7 @@
               class="text-capitalize white"
               width="140px"
               height="55px"
-              to="/join-doctor"
+              @click="goToJoin()"
               >Click Here To Apply</v-btn
             >
           </v-col>
@@ -225,9 +234,10 @@
               :src="require('@/assets/img/LoginPage_img.jpeg')"
               style="border-radius: 20px 0px 0px 20px"
             >
-            </v-img
-          ></v-col> </v-row
-      ></v-container>
+            </v-img>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
     <Footer />
   </div>
@@ -236,12 +246,31 @@
 <script>
 import NavbarLanding from '../components/NavbarLanding.vue'
 import Footer from '../components/Footer.vue'
+import axios from 'axios'
 
 export default {
   components: { NavbarLanding, Footer },
   // middleware: ['authenticated'],
   data() {
     return {
+      top3: [],
+      benefitItems: [
+        {
+          icon: 'mdi-phone',
+          title: 'Convenience and Accessibility',
+          text: 'Access healthcare from home, ideal for remote locations or those with mobility challenges.',
+        },
+        {
+          icon: '',
+          title: 'Time Efficiency',
+          text: 'Save time by eliminating travel and waiting, making consultations more efficient.',
+        },
+        {
+          icon: '',
+          title: 'Enhanced Doctor-Patient Communication',
+          text: 'Real-time video calls improve symptom understanding and enable personalized advice for better healthcare.',
+        },
+      ],
       statusItem: [
         {
           title: 'Doctors',
@@ -256,7 +285,7 @@ export default {
           iconBackground: '#FF6B82',
         },
         {
-          title: 'Consuls',
+          title: 'Consults',
           Counts: 40,
           icon: 'mdi-information',
           iconBackground: '#9675F7',
@@ -265,6 +294,18 @@ export default {
     }
   },
   methods: {
+    getPopularData() {
+      axios
+        .get(`http://localhost:8000/api/top3`)
+        .then((response) => {
+          console.log('API Response:', response)
+          this.top3 = response.data?.top_rooms
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error)
+        })
+    },
+
     goToConsule() {
       const cookieExists = this.$cookies.get('loginCookie')
       if (!cookieExists) {
@@ -278,6 +319,24 @@ export default {
         this.$router.push('/MainPage')
       }
     },
+
+    goToJoin() {
+      const cookieExists = this.$cookies.get('loginCookie')
+      if (!cookieExists) {
+        const navbarLanding = this.$refs.navbarLanding
+        if (navbarLanding) {
+          navbarLanding.dialogLogin = true
+        } else {
+          console.error('NavbarLanding component not found.')
+        }
+      } else {
+        this.$router.push('/join-doctor')
+      }
+    },
+  },
+  mounted() {
+    this.getPopularData()
+    console.log('top3 data:', this.top3)
   },
 }
 </script>

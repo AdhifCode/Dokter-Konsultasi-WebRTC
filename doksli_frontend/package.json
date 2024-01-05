@@ -16,6 +16,8 @@
     "cookie-universal-nuxt": "^2.2.2",
     "core-js": "^3.25.3",
     "cross-env": "^7.0.3",
+    "highcharts": "^11.1.0",
+    "moment-timezone": "^0.5.44",
     "nuxt": "^2.15.8",
     "skyway-js": "^4.4.5",
     "vue": "^2.7.10",
@@ -25,6 +27,7 @@
     "vuetify": "^2.6.10"
   },
   "devDependencies": {
+    "@nuxtjs/moment": "^1.6.1",
     "@nuxtjs/vuetify": "^1.12.3",
     "dotenv": "^16.3.1",
     "eslint-config-prettier": "^8.5.0",

@@ -20,17 +20,19 @@
             class="text-capitalize"
             plain
             :ripple="false"
+            :color="buttonColor.textSub"
             >{{ item.title }}</v-btn
           >
         </div>
         <div v-if="!hasCookie">
           <v-btn
-            color="blue lighten-2"
+            :color="buttonColor.backgroundColor"
             dark
             v-bind="attrs"
             v-on="on"
             @click="dialogLogin = true"
-            class="text-capitalize"
+            class="text-capitalize rounded-lg"
+            :style="{ color: buttonColor.textButton }"
             >Login
           </v-btn>
         </div>
@@ -44,12 +46,20 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                <div class="ma-4">{{ dataprofil.name }}</div>
+                <div :style="{ color: buttonColor.textSub }" class="ma-4">
+                  {{ dataprofil.name }}
+                </div>
                 <v-avatar
                   class="foto-profilan mt-1"
                   :size="$vuetify.breakpoint.smAndDown ? '35' : '50'"
                 >
-                  <v-img :src="require('@/assets/img/profile.jpg')" />
+                  <v-img
+                    :src="
+                      dataprofil.image
+                        ? `http://127.0.0.1:8000/storage/${dataprofil.image}`
+                        : require('@/assets/img/unknown.jpeg')
+                    "
+                  />
                 </v-avatar>
               </v-card>
             </template>
@@ -116,6 +126,12 @@ export default {
       },
       userid: null,
       navBarBackgroundColor: 'transparent',
+      buttonColor: {
+        backgroundColor: 'white',
+        text: 'white',
+        textButton: '#0c8ce9',
+        textSub: 'white',
+      },
       currentLogo: require('~/assets/img/Logo_02.png'),
       navBarElevation: 0,
     }
@@ -125,13 +141,21 @@ export default {
       const scrollPosition =
         window.scrollY || document.documentElement.scrollTop
 
-      const newBackgroundColor = scrollPosition > 100 ? '#fff' : 'transparent'
-      const newLogo =
-        scrollPosition > 100
-          ? require('~/assets/img/Logo_01.png')
-          : require('~/assets/img/Logo_02.png')
+      const isScrolled = scrollPosition > 100
+      const newButtonTextColorSub = isScrolled ? '#0c8ce9' : '#FFFF'
+      const newButtonTextColorButton = isScrolled ? '#FFF' : '#0c8ce9'
+      const newButtonTextColor = isScrolled ? '#fff' : '#0c8ce9'
+      const newButtonColor = isScrolled ? '#0c8ce9' : '#fff'
+      const newBackgroundColor = isScrolled ? '#fff' : 'transparent'
+      const newLogo = isScrolled
+        ? require('~/assets/img/Logo_01.png')
+        : require('~/assets/img/Logo_02.png')
+      const newElevation = isScrolled ? 3 : 0
 
-      const newElevation = scrollPosition > 100 ? 3 : 0
+      this.buttonColor.textSub = newButtonTextColorSub
+      this.buttonColor.textButton = newButtonTextColorButton
+      this.buttonColor.text = newButtonTextColor
+      this.buttonColor.backgroundColor = newButtonColor
       this.navBarBackgroundColor = newBackgroundColor
       this.currentLogo = newLogo
       this.navBarElevation = newElevation

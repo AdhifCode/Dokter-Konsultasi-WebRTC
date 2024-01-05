@@ -4,22 +4,35 @@
       ><v-icon left> mdi-arrow-left </v-icon>Back</v-btn
     >
     <h1>Continue with your email or username</h1>
-    <div>
-      <v-text-field v-model="name" label="Username"></v-text-field>
-      <v-text-field v-model="email" label="Email"></v-text-field>
+    <div class="pt-4 pb-2">
+      <div>Username</div>
+      <v-text-field class="rounded-lg" outlined v-model="name"></v-text-field>
+      <div>Email</div>
       <v-text-field
+        class="rounded-lg"
+        outlined
+        v-model="email"
+        type="email"
+      ></v-text-field>
+      <div>Password</div>
+      <v-text-field
+        class="rounded-lg"
+        outlined
         v-model="password"
-        label="Password"
-        type="password"
+        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append="showPassword = !showPassword"
       ></v-text-field>
-      <v-text-field
-        v-model="passwordConfirmation"
-        label="Confirm Password"
-        type="password"
-      ></v-text-field>
-      <p>Forgot password?</p>
     </div>
-    <v-btn @click="registNow">Register</v-btn>
+    <v-btn
+      height="50"
+      class="rounded-lg text-capitalize white--text"
+      block
+      color="#0C8CE9"
+      depressed
+      @click="registNow"
+      >Register</v-btn
+    >
   </div>
 </template>
 
@@ -30,7 +43,7 @@ export default {
       name: '',
       email: '',
       password: '',
-      passwordConfirmation: '',
+      showPassword: false,
     }
   },
   methods: {
@@ -39,20 +52,27 @@ export default {
     },
     async registNow() {
       try {
-        if (this.password !== this.passwordConfirmation) {
-          console.error('Password and Confirmation do not match')
-          return
-        }
-        await this.$axios.post('/register', {
+        const response = await this.$axios.post('/register', {
           name: this.name,
           email: this.email,
           password: this.password,
-          password_confirmation: this.passwordConfirmation,
+          password_confirmation: this.password,
         })
-      } catch (e) {
-        return
+
+        console.log(response)
+
+        if (response.status === 201) {
+          console.log('Register successful')
+          this.$cookies.set('loginCookie', 'Berhasil')
+          this.$store.dispatch('users/login', response)
+          console.log(response.data)
+        } else {
+          console.error('Register failed')
+          console.error(response.data)
+        }
+      } catch (error) {
+        console.error('An error occurred:', error)
       }
-      // console.log(response.data)
     },
   },
 }

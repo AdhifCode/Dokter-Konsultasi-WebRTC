@@ -6,7 +6,12 @@
     <h1>Continue with your email</h1>
     <div class="pt-4 pb-2">
       <div>Email</div>
-      <v-text-field class="rounded-lg" outlined v-model="email"></v-text-field>
+      <v-text-field
+        class="rounded-lg"
+        type="email"
+        outlined
+        v-model="email"
+      ></v-text-field>
       <div>Password</div>
       <v-text-field
         outlined

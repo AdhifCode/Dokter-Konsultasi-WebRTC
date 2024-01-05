@@ -1,14 +1,22 @@
 <template>
-  <h1>Tunggu Sebentar {{ token }} (Provider: {{ provider }})</h1>
+  <div>
+    <LoadSpinner v-if="showHideSpinner" />
+    <!-- <h1>Tunggu Sebentar {{ token }} (Provider: {{ provider }})</h1> -->
+  </div>
 </template>
 
 <script>
+import LoadSpinner from '@/components/LoadSpinner.vue'
+
 import axios from 'axios'
 export default {
+  components: { LoadSpinner },
+
   data() {
     return {
       token: null,
       provider: '',
+      showHideSpinner: true,
     }
   },
   methods: {
@@ -32,6 +40,7 @@ export default {
           console.log('Login successful')
           this.$cookies.set('loginCookie', 'Berhasil')
           this.$store.dispatch('users/login', response)
+          this.showHideSpinner = false
           console.log(response.data)
         } else {
           console.error('Login failed')

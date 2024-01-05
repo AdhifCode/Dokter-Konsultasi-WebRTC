@@ -26,10 +26,13 @@ class RegisterController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
+        $defaultRoleId = 4;
+
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
+            'role_id' => $defaultRoleId,
         ]);
 
         if ($user) {

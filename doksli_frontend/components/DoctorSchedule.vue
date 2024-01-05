@@ -89,8 +89,11 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data: () => ({
+    doctorid: '',
     focus: '',
     type: 'month',
     typeToLabel: {
@@ -102,7 +105,7 @@ export default {
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
-    events: [],
+    fixedDates: [],
     colors: [
       'blue',
       'indigo',
@@ -112,21 +115,32 @@ export default {
       'orange',
       'grey darken-1',
     ],
-    names: [
-      'Meeting',
-      'Holiday',
-      'PTO',
-      'Travel',
-      'Event',
-      'Birthday',
-      'Conference',
-      'Party',
-    ],
   }),
   mounted() {
     this.$refs.calendar.checkChange()
+    this.fetchScheduleData()
+  },
+  created() {
+    const usid = this.$cookies.get('loginCookie')
+    if (usid) {
+      this.doctorid = usid.data?.data.doctor_id
+    } else {
+      this.doctorid = null
+    }
   },
   methods: {
+    async fetchScheduleData() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/doctorschedule/${this.doctorid}`
+        )
+        this.fixedDates = response.data.orders
+        console.log('Received scheduleData:', this.fixedDates)
+      } catch (error) {
+        console.error('Error fetching schedule data:', error)
+      }
+    },
+
     viewDay({ date }) {
       this.focus = date
       this.type = 'day'
@@ -136,6 +150,9 @@ export default {
     },
     setToday() {
       this.focus = ''
+    },
+    rnd(a, b) {
+      return Math.floor((b - a + 1) * Math.random()) + a
     },
     prev() {
       this.$refs.calendar.prev()
@@ -164,31 +181,22 @@ export default {
     updateRange({ start, end }) {
       const events = []
 
-      const min = new Date(`${start.date}T00:00:00`)
-      const max = new Date(`${end.date}T23:59:59`)
-      const days = (max.getTime() - min.getTime()) / 86400000
-      const eventCount = this.rnd(days, days + 20)
-
-      for (let i = 0; i < eventCount; i++) {
-        const allDay = this.rnd(0, 3) === 0
-        const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-        const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-        const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-        const second = new Date(first.getTime() + secondTimestamp)
+      for (const eventData of this.fixedDates) {
+        const startDate = new Date(eventData.start_time)
+        const endDate = eventData.end_time
+          ? new Date(eventData.end_time)
+          : new Date(eventData.start_time)
 
         events.push({
-          name: this.names[this.rnd(0, this.names.length - 1)],
-          start: first,
-          end: second,
+          name: eventData.name,
+          start: startDate,
+          end: endDate,
           color: this.colors[this.rnd(0, this.colors.length - 1)],
-          timed: !allDay,
+          timed: true,
         })
       }
 
       this.events = events
-    },
-    rnd(a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a
     },
   },
 }

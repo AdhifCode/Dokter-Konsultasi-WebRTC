@@ -19,6 +19,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/api/getuserdata/{id}', [UserController::class, 'userData']);
+
 Route::get('/auth/{provider}', [SocialiteController::class, 'redirectToProvider']);
     Route::get('/auth/{provider}/callback', [SocialiteController::class, 'handleProviderCallback']);
     Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');

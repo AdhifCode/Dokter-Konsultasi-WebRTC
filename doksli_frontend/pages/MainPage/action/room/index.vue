@@ -111,8 +111,7 @@
             <p>
               Your id: <span id="my-id">{{ peerId }}</span>
             </p>
-            <!-- <v-btn @click="makeCall" class="button--green">Join Now</v-btn> -->
-            <v-btn depressed @click="join" class="button--green"
+            <v-btn depressed @click="joinRoom" class="button--green"
               >Join Now</v-btn
             >
           </div></v-col
@@ -205,8 +204,12 @@ export default {
       })
     },
 
-    // makeCall: function () {
-    //   console.log('makeCall')
+    joinRoom() {
+      this.$router.push(`/MainPage/action/${this.peerId}`)
+    },
+
+    // joinRoom: function () {
+    //   console.log('joinRoom')
     //   const call = this.peer.call(this.calltoid, this.localStream)
     //   this.connect(call)
     // },
@@ -220,8 +223,7 @@ export default {
     // },
   },
 
-  mounted: function () {
-    this$store
+  mounted() {
     this.peer = new Peer({
       key: this.APIKey,
       debug: 3,

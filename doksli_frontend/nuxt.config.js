@@ -32,6 +32,7 @@ export default {
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
     'cookie-universal-nuxt',
+    '@nuxtjs/moment',
   ],
 
   store: true,
@@ -74,5 +75,9 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ['vue-tel-input-vuetify'],
+  },
+
+  moment: {
+    defaultTimezone: 'Indonesia/Jakarta',
   },
 }

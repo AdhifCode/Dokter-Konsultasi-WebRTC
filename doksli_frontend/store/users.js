@@ -44,6 +44,7 @@ export const actions = {
   logout({ commit }) {
     window.location.replace('/')
     this.$cookies.remove('loginCookie')
+    this.$cookies.remove('XSRF-TOKEN')
     this.$toast.success('Berhasil logout')
     commit('SETCOOKIE')
   },

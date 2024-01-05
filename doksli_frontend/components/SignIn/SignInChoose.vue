@@ -18,7 +18,7 @@
                 block
                 @click="switchToPhone"
               >
-                <v-icon left>mdi-cellphone</v-icon>Continue with Phone
+                <v-icon left>mdi-cellphone</v-icon>Join with Phone
               </v-btn>
             </div>
 
@@ -28,7 +28,7 @@
               block
               @click="switchToEmail"
             >
-              <v-icon left>mdi-email-outline</v-icon>Continue with Email
+              <v-icon left>mdi-email-outline</v-icon>Join with Email
             </v-btn>
           </div>
 
@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     async socialLogin(provider) {
-      window.location.href = `${process.env.BASE_API_URL}/auth/${provider}`
+      window.location.href = `${process.env.baseUrl}/auth/${provider}`
     },
 
     switchToLogIn() {

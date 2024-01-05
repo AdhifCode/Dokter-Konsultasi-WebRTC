@@ -40,14 +40,14 @@
               '   mt-4   col-md-4  col-sm-6 col-xs-6 d-flex justify-center  ',
               $vuetify.breakpoint.lgAndUp ? 'col-lg-3' : '',
             ]"
-            v-for="(cardItem, index) in filteredItems"
+            v-for="(cardItem, index) in filteredRooms"
             :key="index"
             ><v-card
               style="border-radius: 20px"
               elevation="4"
               width="360"
               height="auto"
-              @click="toconsule(cardItem)"
+              @click="toconsult(cardItem)"
             >
               <v-img
                 v-if="$vuetify.breakpoint.xs"
@@ -55,15 +55,18 @@
                 style="display: none"
               ></v-img>
               <v-img
-                v-else
-                :src="require(`@/assets/img/${cardItem.image}`)"
+                :src="`http://127.0.0.1:8000/storage/${cardItem.room_image}`"
                 height="200px"
               ></v-img>
               <v-card-actions>
                 <v-list-item class="grow">
                   <v-list-item-avatar color="grey darken-3">
                     <v-img
-                      :src="require(`@/assets/img/${cardItem.image}`)"
+                      :src="
+                        cardItem.user_image
+                          ? `http://127.0.0.1:8000/storage/${cardItem.user_image}`
+                          : require('@/assets/img/unknown.jpeg')
+                      "
                       class="elevation-6"
                       alt=""
                     ></v-img>
@@ -74,10 +77,19 @@
                       cardItem.name
                     }}</v-list-item-title>
                   </v-list-item-content>
-
-                  <v-btn icon depressed @click="addFavorite()" class="pa-1">
-                    <v-icon>mdi-heart</v-icon>
-                  </v-btn>
+                  <v-row align="center" justify="end">
+                    <v-btn
+                      icon
+                      depressed
+                      @click.stop="addFavorite(cardItem)"
+                      :color="cardItem.isFavorite ? 'red' : ''"
+                    >
+                      <v-icon>mdi-heart</v-icon>
+                    </v-btn>
+                    <span class="subheading mr-2">{{
+                      cardItem.total_favorites
+                    }}</span>
+                  </v-row>
                 </v-list-item>
               </v-card-actions>
 
@@ -86,7 +98,9 @@
               <v-card-actions>
                 <v-list-item class="grow">
                   <v-list-item-content>
-                    <v-list-item-title>{{ cardItem.name }}</v-list-item-title>
+                    <v-list-item-title>{{
+                      cardItem.experience
+                    }}</v-list-item-title>
                   </v-list-item-content>
 
                   <div>
@@ -100,15 +114,89 @@
           ></v-row
         >
       </div>
-      <div v-if="$route.path.includes('/schedule')"><DoctorSchedule /></div>
+      <div v-if="$route.path.includes('/schedule')">
+        <v-row>
+          <v-col cols="12"><DoctorSchedule /></v-col>
+          <!-- <v-col cols="8">
+            <v-card
+              v-for="(cardItem, index) in items"
+              :key="index"
+              class="d-flex mt-2"
+              elevation="0"
+              @click="room(cardItem.room_id)"
+            >
+              <v-img></v-img>
+              <div>{{ cardItem.title }}</div>
+              12.00
+            </v-card>
+          </v-col> -->
+        </v-row>
+      </div>
       <div v-if="$route.path.includes('/profile')">
         <v-row>
           <v-col cols="6"
             ><v-card style="border-radius: 20px"
               ><v-img
-                height="250"
-                :src="require(`@/assets/img/profile.jpg`)"
-              ></v-img>
+                :src="preview"
+                v-if="preview"
+                height="250px"
+                class="position-relative"
+                @mouseover="showIcon = true"
+                @mouseleave="showIcon = false"
+              >
+                <v-btn
+                  v-if="editMode && showIcon"
+                  @click="handleImageChange()"
+                  :ripple="false"
+                  depressed
+                  x-large
+                  icon
+                  class="icon-overlay"
+                  :class="{ 'elevation-12': showIcon }"
+                  ><v-icon v-show="showIcon" color="white">
+                    mdi-image-edit-outline
+                  </v-icon>
+                  <input
+                    ref="imageInput"
+                    type="file"
+                    style="display: none"
+                    accept="image/*"
+                    v-on:change="onFileInputChange"
+                /></v-btn>
+                ></v-img
+              >
+              <v-img
+                v-else
+                :src="
+                  profile.image
+                    ? `http://127.0.0.1:8000/storage/${profile.image}`
+                    : require('@/assets/img/unknown.jpeg')
+                "
+                height="250px"
+                class="position-relative"
+                @mouseover="showIcon = true"
+                @mouseleave="showIcon = false"
+              >
+                <v-btn
+                  v-if="editMode && showIcon"
+                  @click="handleImageChange()"
+                  :ripple="false"
+                  depressed
+                  x-large
+                  icon
+                  class="icon-overlay"
+                  :class="{ 'elevation-12': showIcon }"
+                  ><v-icon v-show="showIcon" color="white">
+                    mdi-image-edit-outline
+                  </v-icon>
+                  <input
+                    ref="imageInput"
+                    type="file"
+                    style="display: none"
+                    accept="image/*"
+                    v-on:change="onFileInputChange"
+                /></v-btn>
+              </v-img>
               <div>
                 <v-row>
                   <v-col><v-card-title>My Profile</v-card-title></v-col>
@@ -122,15 +210,43 @@
                   <v-row
                     ><v-col
                       ><v-text-field
+                        :readonly="!editMode"
                         v-model="profile.name"
                       ></v-text-field></v-col
                     ><v-col>
-                      <v-text-field
+                      <vue-tel-input-vuetify
+                        block
+                        class="rounded-lg"
+                        :readonly="!editMode"
                         v-model="profile.phone"
-                      ></v-text-field></v-col
+                        solo
+                        :maxLen="15"
+                        defaultCountry="ID"
+                        :onlyCountries="['ID', 'MY', 'SG']"
+                      ></vue-tel-input-vuetify> </v-col
                   ></v-row>
-                  <v-text-field v-model="profile.email"></v-text-field>
-                  <v-btn class="text-capitalize" rounded>Edit</v-btn>
+                  <v-text-field
+                    :readonly="!editMode"
+                    v-model="profile.email"
+                    type="email"
+                  ></v-text-field>
+                  <div v-if="!editMode" class="ma-4">
+                    <v-btn
+                      class="text-capitalize"
+                      rounded
+                      @click="editMode = true"
+                      >Edit</v-btn
+                    >
+                  </div>
+
+                  <div v-if="editMode" class="ma-4">
+                    <v-btn class="text-capitalize" rounded @click="cancelEdit"
+                      >Cancel</v-btn
+                    >
+                    <v-btn class="text-capitalize" rounded @click="saveChanges"
+                      >Save</v-btn
+                    >
+                  </div>
                 </div>
               </div>
             </v-card></v-col
@@ -151,20 +267,21 @@
                   ><v-divider class="mb-2"></v-divider>
                   <div class="scrollable-container">
                     <div
-                      v-for="(cardItem, index) in items"
+                      v-for="(favorite, index) in favoriteRooms"
                       :key="index"
                       class="d-flex justify-space-between align-center ma-2"
                     >
                       <div>
-                        <div class="black--text">{{ cardItem.specialist }}</div>
-                        <div>By Dr.{{ cardItem.name }}</div>
+                        <div class="font-weight-black">
+                          {{ favorite.specialist }}
+                        </div>
+                        <div class="font-italic">By Dr.{{ favorite.name }}</div>
                       </div>
                       <v-btn
-                        :color="greengrey"
                         class="justify-end text-capitalize"
                         elevation="0"
                         rounded
-                        @click="toconsule(cardItem)"
+                        @click="toconsult(favorite)"
                         >Visit</v-btn
                       >
                     </div>
@@ -178,16 +295,17 @@
                 <v-container>
                   <div class="scrollable-container">
                     <div
-                      v-for="(cardItem, index) in items"
+                      v-for="(cardItem, index) in recentOrders"
                       :key="index"
                       class="d-flex justify-space-between align-center ma-2"
                     >
                       <div>
-                        <div class="text-bold">{{ cardItem.specialist }}</div>
-                        <div>By Dr.{{ cardItem.name }}</div>
+                        <div class="text-bold">
+                          {{ cardItem.room.doctor.specialist }}
+                        </div>
+                        <div>By Dr.{{ cardItem.room.doctor.user.name }}</div>
                       </div>
                       <v-btn
-                        :color="greengrey"
                         class="justify-end text-capitalize"
                         elevation="0"
                         rounded
@@ -204,15 +322,40 @@
       </div>
       <div v-if="$route.path.includes('/meet')">
         <v-card
-          v-for="(cardItem, index) in items"
+          v-for="(orderItem, index) in upcomingOrders"
           :key="index"
           class="d-flex mt-2"
+          outlined
           elevation="0"
-          @click="room(cardItem.consule_id)"
+          rounded-lg
+          @click="room(orderItem.room.room_id)"
         >
-          <v-img></v-img>
-          <div>{{ cardItem.title }}</div>
-          12.00
+          <v-container>
+            <div class="d-flex">
+              <v-avatar>
+                <v-img
+                  :src="
+                    orderItem.room.doctor.user.image
+                      ? `http://127.0.0.1:8000/storage/${orderItem.room.doctor.user.image}`
+                      : require('@/assets/img/unknown.jpeg')
+                  "
+                  class="elevation-6"
+                  alt=""
+                ></v-img
+              ></v-avatar>
+              <div class="ml-2">
+                <div class="font-weight-bold">
+                  {{ orderItem.room.room_title }}
+                </div>
+                <div class="font-italic">
+                  Dr. {{ orderItem.room.doctor.user.name }}
+                </div>
+              </div>
+              <div>
+                {{ $moment(orderItem.time_start).fromNow() }}
+              </div>
+            </div>
+          </v-container>
         </v-card>
       </div>
       <!-- <div v-else>Kosong kang</div> -->
@@ -252,28 +395,17 @@
           @click="pushing(item.slug)"
           style="justify-content: center"
         >
-          <v-icon
-            v-if="
-              !['.jpg', '.png', '.jpeg'].some((ext) => item.icon.endsWith(ext))
-            "
-          >
+          <v-icon v-if="item.icon">
             {{ item.icon }}
           </v-icon>
           <div v-else>
             <v-avatar width="32px" height="32px">
               <img
-                v-if="
-                  item.icon !== null &&
-                  item.icon !== undefined &&
-                  item.icon !== ''
+                :src="
+                  profile.image
+                    ? `http://127.0.0.1:8000/storage/${profile.image}`
+                    : require('@/assets/img/unknown.jpeg')
                 "
-                :src="require(`~/assets/img/${item.icon}`)"
-                alt="John"
-                style="object-fit: cover"
-              />
-              <img
-                v-else
-                :src="require(`~/assets/img/unknown.jpeg`)"
                 alt="John"
                 style="object-fit: cover"
               />
@@ -287,14 +419,19 @@
 
 <script>
 import DoctorSchedule from '~/components/DoctorSchedule.vue'
+import axios from 'axios'
 
 export default {
   components: { DoctorSchedule },
   middleware: ['authenticated'],
-  // layout: 'BottomNavigation',
   data() {
     return {
+      userid: '',
+      upcomingOrders: [],
+      recentOrders: [],
+      showIcon: false,
       searchKeyword: '',
+      editMode: false,
       value: 2,
       ButtonActive: true,
       notes: { note: '', doctor: '', specialist: '' },
@@ -302,188 +439,158 @@ export default {
         { icon: 'mdi-calendar-month', slug: '/schedule' },
         { icon: 'mdi-home-variant', slug: '/home' },
         { icon: 'mdi-video', slug: '/meet' },
-        { icon: 'profile.jpg', slug: '/profile' },
+        { icon: '', slug: '/profile' },
       ],
       page: 1,
       dialogsearch: false,
       dialogNotes: false,
       cari: '',
-      items: [
-        {
-          consule_id: '1',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Abdul',
-          title: 'Membantu untuk masalah kecantikan',
-          specialist: 'Dermatologist',
-          notes: 'Sebaiknya hindari makanan2 yang berminyak',
-        },
-        {
-          consule_id: '2',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Bella',
-          title: 'Membantu untuk masalah mata',
-          specialist: 'Ophthalmologist',
-          notes:
-            'Pastikan menggunakan kacamata hitam saat berada di luar ruangan',
-        },
-        {
-          consule_id: '3',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Charlie',
-          title: 'Membantu untuk masalah jantung',
-          specialist: 'Cardiologist',
-          notes:
-            'Jaga asupan makanan rendah garam dan hindari makanan berlemak',
-        },
-        {
-          consule_id: '4',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'David',
-          title: 'Membantu untuk masalah anak-anak',
-          specialist: 'Pediatrician',
-          notes: 'Pastikan anak-anak mendapatkan vaksinasi sesuai jadwal',
-        },
-        {
-          consule_id: '5',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Eva',
-          title: 'Membantu untuk masalah pencernaan',
-          specialist: 'Gastroenterologist',
-          notes: 'Perbanyak konsumsi serat untuk menjaga kesehatan pencernaan',
-        },
-        {
-          consule_id: '6',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Frank',
-          title: 'Membantu untuk masalah endokrin',
-          specialist: 'Endocrinologist',
-          notes: 'Penting untuk menjaga kadar gula darah tetap stabil',
-        },
-        {
-          consule_id: '7',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Grace',
-          title: 'Membantu untuk masalah kesehatan mental',
-          specialist: 'Psychiatrist',
-          notes: 'Berbicara terbuka dapat membantu mengatasi masalah mental',
-        },
-        {
-          consule_id: '8',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Harry',
-          title: 'Membantu untuk masalah urologi',
-          specialist: 'Urologist',
-          notes: 'Minum banyak air untuk menjaga kesehatan saluran kemih',
-        },
-        {
-          consule_id: '9',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Ivy',
-          title: 'Membantu untuk masalah kehamilan',
-          specialist: 'Obstetrician',
-          notes: 'Ikuti prenatal care secara teratur selama kehamilan',
-        },
-        {
-          consule_id: '10',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Jack',
-          title: 'Membantu untuk masalah onkologi',
-          specialist: 'Oncologist',
-          notes:
-            'Penting untuk mendeteksi kanker sejak dini melalui pemeriksaan rutin',
-        },
-        {
-          consule_id: '11',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Kelly',
-          title: 'Membantu untuk masalah ginjal',
-          specialist: 'Nephrologist',
-          notes: 'Kurangi konsumsi garam untuk menjaga kesehatan ginjal',
-        },
-        {
-          consule_id: '12',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Liam',
-          title: 'Membantu untuk masalah alergi',
-          specialist: 'Allergist',
-          notes:
-            'Identifikasi alergen dan hindari kontak dengan alergen tersebut',
-        },
-        {
-          consule_id: '13',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Mia',
-          title: 'Membantu untuk masalah rematologi',
-          specialist: 'Rheumatologist',
-          notes: 'Senam ringan dapat membantu meredakan nyeri pada sendi',
-        },
-        {
-          consule_id: '14',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Nathan',
-          title: 'Membantu untuk masalah paru-paru',
-          specialist: 'Pulmonologist',
-          notes: 'Hindari paparan asap rokok dan lingkungan berpolusi',
-        },
-        {
-          consule_id: '15',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Olivia',
-          title: 'Membantu untuk masalah hematologi',
-          specialist: 'Hematologist',
-          notes: 'Konsumsi makanan yang kaya zat besi untuk mencegah anemia',
-        },
-        {
-          consule_id: '16',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Peter',
-          title: 'Membantu untuk masalah ginekologi',
-          specialist: 'Gynecologist',
-          notes:
-            'Lakukan pemeriksaan Pap smear secara teratur untuk deteksi dini kanker serviks',
-        },
-        {
-          consule_id: '17',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Quinn',
-          title: 'Membantu untuk masalah THT',
-          specialist: 'ENT Specialist',
-          notes: 'Hindari penggunaan cotton bud untuk membersihkan telinga',
-        },
-        {
-          consule_id: '18',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Ryan',
-          title: 'Membantu untuk masalah penyakit menular',
-          specialist: 'Infectious Disease Specialist',
-          notes: 'Ikuti protokol kebersihan untuk mencegah penularan penyakit',
-        },
-        {
-          consule_id: '19',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Sara',
-          title: 'Membantu untuk masalah fisioterapi',
-          specialist: 'Physiotherapist',
-          notes: 'Lakukan latihan fisioterapi sesuai petunjuk profesional',
-        },
-        {
-          consule_id: '20',
-          image: 'Landing_Orthopedi.jpg',
-          name: 'Tom',
-          title: 'Membantu untuk masalah diet',
-          specialist: 'Dietician',
-          notes: 'Konsultasikan pola makan sehat sesuai kebutuhan tubuh',
-        },
-      ],
-      profile: {
-        name: 'Nadhifal',
-        phone: '+62 896 3683 5581',
-        email: 'nadhifalazharuddiya@gmail.com',
-        address: 'Bumi Mutiara BLOK JF 10/16, Gunung Putri, Bogor',
-      },
+      rooms: [],
+      favoriteRooms: [],
+      profile: [],
+      tampungfoto: '',
+      preview: null,
     }
   },
   methods: {
+    cancelEdit() {
+      this.editMode = false
+      this.getUserData()
+      this.preview = null
+    },
+    handleImageChange() {
+      this.$refs.imageInput.click()
+    },
+
+    onFileInputChange(event) {
+      let files = event.target.files[0]
+      this.datafoto = files
+      let fotobaru = event.name
+      console.log(files)
+      this.preview = URL.createObjectURL(files)
+      this.tampungfoto = fotobaru
+    },
+
+    saveChanges() {
+      const formData = new FormData()
+      formData.append('name', this.profile.name)
+      formData.append('email', this.profile.email)
+      formData.append('phone', this.profile.phone)
+
+      if (this.datafoto) {
+        formData.append('image', this.datafoto)
+      }
+
+      axios
+        .post(`http://localhost:8000/api/updateuser/${this.userid}`, formData)
+        .then((response) => {
+          const data = response.data
+
+          if (data.success) {
+            this.profile = data.data
+            console.log('Profile updated successfully')
+            this.editMode = false
+          } else {
+            console.error('Failed to update profile:', data.message)
+          }
+        })
+        .catch((error) => {
+          console.error('Error updating profile:', error)
+        })
+    },
+
+    getUserData() {
+      axios
+        .get(`http://localhost:8000/api/users/${this.userid}`)
+        .then((response) => {
+          console.log('API Response:', response)
+          this.profile = response.data?.data
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error)
+        })
+    },
+
+    getOrders() {
+      axios
+        .get(`http://localhost:8000/api/orders/${this.userid}`)
+        .then((response) => {
+          const orders = response.data.user_orders
+
+          const currentTime = this.$moment()
+          this.recentOrders = orders.filter((order) => {
+            const orderTime = this.$moment(order.time_start)
+            return currentTime.diff(orderTime, 'seconds') >= 1
+          })
+
+          this.upcomingOrders = orders.filter((order) => {
+            const orderTime = this.$moment(order.time_start)
+            return currentTime.diff(orderTime, 'seconds') < 1
+          })
+        })
+        .catch((error) => {
+          console.error('Error fetching orders:', error)
+        })
+    },
+
+    getFavoriteRooms() {
+      axios
+        .get(`http://localhost:8000/api/userfavorite?user_id=${this.userid}`)
+        .then((response) => {
+          this.favoriteRooms = response.data.favorites
+        })
+        .catch((error) => {
+          console.error('Error fetching favorite rooms:', error)
+        })
+    },
+
+    getRooms() {
+      axios
+        .get('http://localhost:8000/api/getrooms')
+        .then((response) => {
+          this.rooms = response.data.rooms
+
+          this.rooms.forEach((cardItem) => {
+            this.checkFavoriteStatus(cardItem)
+          })
+        })
+        .catch((error) => {
+          console.error('Error fetching rooms:', error)
+        })
+    },
+
+    addFavorite(cardItem) {
+      axios
+        .post(`http://localhost:8000/api/favorite/${cardItem.room_id}`, {
+          user_id: this.userid,
+        })
+        .then((response) => {
+          const message = response.data.message
+          const isFavorite = response.data.is_favorite
+          console.log(message)
+
+          this.$set(cardItem, 'isFavorite', isFavorite)
+          this.$forceUpdate()
+        })
+        .catch((error) => {
+          console.error('Error adding favorite:', error)
+        })
+    },
+
+    checkFavoriteStatus(cardItem) {
+      axios
+        .get(`http://localhost:8000/api/favorite/${cardItem.room_id}/status`, {
+          params: { user_id: this.userid },
+        })
+        .then((response) => {
+          const isFavorite = response.data.is_favorite
+
+          this.$set(cardItem, 'isFavorite', isFavorite)
+        })
+        .catch((error) => {
+          console.error('Error checking favorite status:', error)
+        })
+    },
     showNotes(cardItem) {
       console.log(cardItem.notes)
       this.dialogNotes = true
@@ -491,18 +598,24 @@ export default {
       this.notes.doctor = cardItem.name
       this.notes.specialist = cardItem.specialist
     },
-    toconsule(cardItem) {
-      console.log(cardItem.consule_id)
-      this.$router.push(`../action/consule/${cardItem.consule_id}`)
+    toconsult(favorite) {
+      console.log(favorite.room_id)
+      this.$router.push(`../action/consult/${favorite.room_id}`)
     },
     pushing(data) {
       this.$router.push('/MainPage/action' + data)
     },
     room(id) {
-      console.log(cardItem.consule_id)
-      this.$store.commit('meet/setInputId', cardItem.consule_id)
-      this.$router.push('/MainPage/action/room')
+      const orderItem = this.rooms.find((item) => item.room_id === id)
+      if (orderItem) {
+        console.log('Idnya', orderItem.room_id)
+        this.$store.commit('meet/setInputId', orderItem.room_id)
+        this.$router.push('/MainPage/action/room')
+      } else {
+        console.error('Card item not found for id:', id)
+      }
     },
+
     search() {
       if (this.searchKeyword.trim() !== '') {
         this.$router.push('/MainPage/action/home')
@@ -510,8 +623,8 @@ export default {
     },
   },
   computed: {
-    filteredItems() {
-      return this.items.filter(
+    filteredRooms() {
+      return this.rooms.filter(
         (item) =>
           item.name.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
           item.title.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
@@ -534,6 +647,26 @@ export default {
       }
     },
   },
+  mounted() {
+    this.getRooms()
+    this.getOrders()
+
+    this.rooms.forEach((cardItem) => {
+      this.checkFavoriteStatus(cardItem)
+    })
+    this.getFavoriteRooms()
+    this.getUserData()
+  },
+
+  created() {
+    const usid = this.$cookies.get('loginCookie')
+    if (usid) {
+      this.userid = usid.data?.data.id
+      console.log(usid)
+    } else {
+      this.userid = null
+    }
+  },
 }
 </script>
 
@@ -554,5 +687,14 @@ export default {
 
 .scrollable-container::-webkit-scrollbar-track {
   background-color: transparent;
+}
+
+.icon-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px; /* Sesuaikan ukuran ikon sesuai kebutuhan */
+  color: white; /* Sesuaikan warna ikon sesuai kebutuhan */
 }
 </style>

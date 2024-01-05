@@ -9,12 +9,12 @@
         <v-divider></v-divider>
 
         <v-stepper-step :complete="e1 > 2" step="2">
-          Make Your Own Page
+          Certification
         </v-stepper-step>
 
         <v-divider></v-divider>
 
-        <v-stepper-step step="3"> Name of step 3 </v-stepper-step>
+        <v-stepper-step step="3"> Costumizing Page </v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -127,7 +127,22 @@
         </v-stepper-content>
 
         <v-stepper-content step="2">
-          <v-card class="mb-12" color="grey lighten-1" height="200px"></v-card>
+          <v-row align="center" justify="center">
+            <v-col cols="12" sm="6">
+              <!-- Input element for file upload -->
+              <v-file-input
+                v-model="form.image"
+                label="Upload Image"
+                accept="image/*"
+                show-size
+                @change="handleFileUpload"
+              ></v-file-input>
+            </v-col>
+            <v-col cols="12" v-if="form.image">
+              <!-- Display the selected image -->
+              <v-img :src="form.image" height="150"></v-img>
+            </v-col>
+          </v-row>
 
           <v-btn @click="prev" text> Previous </v-btn>
 
@@ -156,6 +171,7 @@ export default {
       Specialists: '',
       age: null,
       terms: false,
+      image: null,
     })
 
     return {
@@ -198,6 +214,18 @@ export default {
     submit() {
       this.snackbar = true
       this.resetForm()
+    },
+    handleFileUpload(files) {
+      // Handle file upload and set the image field
+      if (files.length > 0) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          this.form.image = e.target.result
+        }
+        reader.readAsDataURL(files[0])
+      } else {
+        this.form.image = null
+      }
     },
   },
 }

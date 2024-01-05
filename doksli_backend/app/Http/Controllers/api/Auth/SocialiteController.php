@@ -41,10 +41,8 @@ class SocialiteController extends Controller
         'remember_token' => $authUser->remember_token,
     ];
 
-    // Append provider information and additional data to the redirect URL
     $redirectUrl = env('CLIENT_BASE_URL') . '/auth/social-callback?token=' . $token . '&origin=' . ($user ? 'register' : 'login') . '&provider=' . $provider;
 
-    // Append additional data to the redirect URL
     foreach ($additionalData as $key => $value) {
         $redirectUrl .= "&{$key}={$value}";
     }
