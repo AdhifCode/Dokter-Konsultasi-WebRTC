@@ -102,7 +102,13 @@
                     v-on="on"
                   >
                     <v-avatar class="foto-profilan mt-1" size="40">
-                      <v-img :src="require('@/assets/img/profile.jpg')" />
+                      <v-img
+                        :src="
+                          dataprofil.image
+                            ? `http://127.0.0.1:8000/storage/${dataprofil.image}`
+                            : require('@/assets/img/unknown.jpeg')
+                        "
+                      />
                     </v-avatar>
                   </v-card>
                 </template>
@@ -194,6 +200,16 @@ export default {
     },
     isaktif(pathh) {
       return this.$route.path === pathh
+    },
+    logout() {
+      this.$store.dispatch('users/logout')
+    },
+    handleMenuClick(menu) {
+      if (menu.title === 'Log Out') {
+        this.logout()
+      } else {
+        window.location.replace('/MainPage/action/profile')
+      }
     },
     logout() {
       this.$store.dispatch('users/logout')

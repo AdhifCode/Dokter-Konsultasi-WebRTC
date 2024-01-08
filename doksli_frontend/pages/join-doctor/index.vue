@@ -1,6 +1,6 @@
 <template>
-  <v-container
-    ><v-stepper v-model="e1">
+  <v-container>
+    <v-stepper v-model="e1">
       <v-stepper-header>
         <v-stepper-step :complete="e1 > 1" step="1">
           Identification
@@ -9,12 +9,8 @@
         <v-divider></v-divider>
 
         <v-stepper-step :complete="e1 > 2" step="2">
-          Certification
+          Costumizing Page
         </v-stepper-step>
-
-        <v-divider></v-divider>
-
-        <v-stepper-step step="3"> Costumizing Page </v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -22,57 +18,67 @@
           <v-card flat>
             <v-snackbar v-model="snackbar" absolute top right color="success">
               <span>Registration successful!</span>
-              <v-icon dark> mdi-checkbox-marked-circle </v-icon>
+              <v-icon dark>mdi-checkbox-marked-circle</v-icon>
             </v-snackbar>
             <v-form ref="form" @submit.prevent="submit">
               <v-container fluid>
                 <v-row>
                   <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="form.first"
-                      :rules="rules.name"
-                      color="purple darken-2"
-                      label="First name"
+                    <v-select
+                      v-model="form.specialist_id"
+                      :items="special"
+                      :item-value="(specialist) => specialist.specialist_id"
+                      :item-text="(specialist) => specialist.name"
+                      :rules="rules.specialist_id"
+                      color="pink"
+                      label="Your Specialist"
                       required
-                    ></v-text-field>
+                    >
+                    </v-select>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-text-field
-                      v-model="form.last"
-                      :rules="rules.name"
+                      v-model="form.experience"
+                      :rules="rules.experience"
                       color="blue darken-2"
-                      label="Last name"
+                      label="How long have you been in this specialist"
                       required
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
-                    <v-textarea v-model="form.bio" color="teal">
-                      <template v-slot:label>
-                        <div>Bio <small>(optional)</small></div>
+                    <v-file-input
+                      v-model="form.sip"
+                      color="deep-purple accent-4"
+                      accept="image/png, image/jpeg, image/bmp"
+                      counter
+                      :rules="rules.sip"
+                      label="File input"
+                      :multiple="false"
+                      placeholder="Select your image"
+                      prepend-icon="mdi-paperclip"
+                      outlined
+                      :show-size="1000"
+                      @change="handleFileUploadSIP"
+                    >
+                      <template v-slot:selection="{ index, text }">
+                        <v-chip
+                          v-if="index < 2"
+                          color="deep-purple accent-4"
+                          dark
+                          label
+                          small
+                        >
+                          {{ text }}
+                        </v-chip>
+
+                        <span
+                          v-else-if="index === 2"
+                          class="text-overline grey--text text--darken-3 mx-2"
+                        >
+                          +{{ form.sip.length - 2 }} File(s)
+                        </span>
                       </template>
-                    </v-textarea>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-select
-                      v-model="form.Specialists"
-                      :items="special"
-                      :rules="rules.special"
-                      color="pink"
-                      label="Your Specialist"
-                      required
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-slider
-                      v-model="form.age"
-                      :rules="rules.age"
-                      color="orange"
-                      label="Age"
-                      hint="Be honest"
-                      min="1"
-                      max="100"
-                      thumb-label
-                    ></v-slider>
+                    </v-file-input>
                   </v-col>
                   <v-col cols="12">
                     <v-checkbox v-model="form.terms" color="green">
@@ -119,75 +125,141 @@
             </v-dialog>
           </v-card>
 
-          <v-btn :disabled="!formIsValid" color="primary" @click="e1 = 2">
-            Continue
-          </v-btn>
+          <!-- <v-btn :disabled="!formIsValid" color="primary" @click="e1 = 2"> -->
+          <v-btn color="primary" @click="e1 = 2"> Continue </v-btn>
 
           <v-btn @click="resetForm" text> Cancel </v-btn>
         </v-stepper-content>
 
         <v-stepper-content step="2">
           <v-row align="center" justify="center">
-            <v-col cols="12" sm="6">
-              <!-- Input element for file upload -->
+            <v-col cols="6" sm="6"
+              ><v-card
+                style="border-radius: 20px"
+                elevation="4"
+                width="360"
+                height="auto"
+              >
+                <v-img
+                  v-if="$vuetify.breakpoint.xs"
+                  height="200px"
+                  style="display: none"
+                ></v-img>
+
+                <v-img v-else :src="preview" height="200px"></v-img>
+
+                <v-card-actions>
+                  <v-list-item class="grow">
+                    <v-list-item-avatar color="grey darken-3">
+                      <v-img
+                        :src="
+                          form.userData.image
+                            ? `http://127.0.0.1:8000/storage/${form.userData.image}`
+                            : require('@/assets/img/unknown.jpeg')
+                        "
+                        class="elevation-6"
+                        alt=""
+                      ></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title class="text-capitalize">{{
+                        form.userData.name
+                      }}</v-list-item-title>
+                    </v-list-item-content>
+                    <v-row align="center" justify="end">
+                      <v-btn icon depressed color="red">
+                        <v-icon>mdi-heart</v-icon>
+                      </v-btn>
+                      <span class="subheading mr-2">100</span>
+                    </v-row>
+                  </v-list-item>
+                </v-card-actions>
+
+                <v-card-title class="text-capitalize">{{
+                  form.room_title
+                }}</v-card-title>
+
+                <v-card-actions>
+                  <v-list-item class="grow">
+                    <v-list-item-content>
+                      <v-list-item-title>{{
+                        form.experience
+                      }}</v-list-item-title>
+                    </v-list-item-content>
+
+                    <div>
+                      <span class="subheading mr-2">{{
+                        getSpecialistName(form.specialist_id)
+                      }}</span>
+                    </div>
+                  </v-list-item>
+                </v-card-actions>
+              </v-card></v-col
+            >
+            <v-col cols="6" sm="6">
+              <v-text-field
+                v-model="form.room_title"
+                :rules="rules.room_title"
+                color="blue darken-2"
+                label="Set Your title"
+                required
+              ></v-text-field>
               <v-file-input
-                v-model="form.image"
+                v-model="form.room_image"
                 label="Upload Image"
                 accept="image/*"
                 show-size
                 @change="handleFileUpload"
               ></v-file-input>
             </v-col>
-            <v-col cols="12" v-if="form.image">
-              <!-- Display the selected image -->
-              <v-img :src="form.image" height="150"></v-img>
-            </v-col>
           </v-row>
 
           <v-btn @click="prev" text> Previous </v-btn>
 
-          <v-btn color="primary" @click="e1 = 3"> Continue </v-btn>
-        </v-stepper-content>
-
-        <v-stepper-content step="3">
-          <v-card class="mb-12" color="grey lighten-1" height="200px"></v-card>
-
-          <v-btn @click="prev" text> Previous </v-btn>
-
-          <v-btn color="primary" @click="goJoin()"> Join Now </v-btn>
+          <v-btn color="primary" @click="submit()"> Join Now </v-btn>
         </v-stepper-content>
       </v-stepper-items>
-    </v-stepper></v-container
-  >
+    </v-stepper>
+  </v-container>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data() {
     const defaultForm = Object.freeze({
-      first: '',
-      last: '',
-      bio: '',
-      Specialists: '',
-      age: null,
+      userId: '',
+      userData: { image: '', name: '' },
+      experience: '',
+      specialist_id: '',
+      sip: '',
+      room_title: '',
+      room_image: '',
       terms: false,
-      image: null,
     })
 
     return {
       e1: 1,
-      form: Object.assign({}, defaultForm),
+      form: { ...defaultForm },
       rules: {
-        age: [(val) => val < 10 || `I don't believe you!`],
-        special: [(val) => (val || '').length > 0 || 'This field is required'],
-        name: [(val) => (val || '').length > 0 || 'This field is required'],
+        specialist_id: [(val) => !!val || 'Please select a Specialist'],
+        experience: [
+          (val) => (val || '').length > 0 || 'This field is required',
+        ],
+        room_title: [
+          (val) => (val || '').length > 0 || 'This field is required',
+        ],
+        sip: [(val) => (val || '').length > 0 || 'This field is required'],
       },
-      special: ['Orthopedi', 'Tes', 'Rabbit', 'Turtle', 'Snake'],
+      special: [],
       conditions: false,
       content:
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.',
       snackbar: false,
       terms: false,
+      tampungfoto: '',
       defaultForm,
     }
   },
@@ -195,38 +267,102 @@ export default {
   computed: {
     formIsValid() {
       return (
-        this.form.first &&
-        this.form.last &&
-        this.form.Specialists &&
+        this.form.sip.length > 0 &&
+        this.form.experience &&
+        this.form.specialist_id &&
         this.form.terms
       )
     },
   },
 
   methods: {
+    getSpecialistName(specialistId) {
+      const selectedSpecialist = this.special.find(
+        (specialist) => specialist.specialist_id === specialistId
+      )
+      return selectedSpecialist ? selectedSpecialist.name : 'Unknown Specialist'
+    },
+
+    async specialistGet() {
+      try {
+        const response = await axios.get(
+          'http://localhost:8000/api/specialists'
+        )
+        console.log(response)
+        this.special = response.data.specialists
+      } catch (error) {
+        console.error('Error fetching specialists:', error.response.data)
+        this.$snackbar.error('Error fetching specialists')
+      }
+    },
+
+    submit() {
+      const formData = new FormData()
+      formData.append('user_id', this.userId)
+      formData.append('specialist_id', this.form.specialist_id)
+      formData.append('experience', this.form.experience)
+      formData.append('room_title', this.form.room_title)
+
+      if (this.form.sip) {
+        formData.append('SIP', this.form.sip)
+      }
+
+      if (this.form.room_image) {
+        formData.append('room_image', this.form.room_image)
+      }
+      axios
+        .post('http://localhost:8000/api/joindoctor', formData)
+        .then((response) => {
+          console.log(response.data)
+          this.snackbar = true
+          this.resetForm()
+        })
+        .catch((error) => {
+          console.error('Error registering doctor:', error.response.data)
+          this.$snackbar.error('Error registering doctor')
+        })
+    },
+
+    getuser() {
+      axios
+        .get('http://127.0.0.1:8000/api/users/' + this.userId)
+        .then((response) => {
+          console.log(response)
+          this.form.userData = response.data?.data
+          console.log(this.form.userData)
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error.response.data)
+        })
+    },
     prev() {
       this.e1 = Math.max(this.e1 - 1, 1)
     },
     resetForm() {
-      this.form = Object.assign({}, this.defaultForm)
+      this.form = { ...this.defaultForm }
       this.$refs.form.reset()
     },
-    submit() {
-      this.snackbar = true
-      this.resetForm()
+    handleFileUpload(event) {
+      let files = event
+      console.log(files)
+      this.form.room_image = files
+      let fotobaru = event.name
+      this.preview = URL.createObjectURL(files)
+      this.tampungfoto = fotobaru
     },
-    handleFileUpload(files) {
-      // Handle file upload and set the image field
-      if (files.length > 0) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          this.form.image = e.target.result
-        }
-        reader.readAsDataURL(files[0])
-      } else {
-        this.form.image = null
-      }
-    },
+    // handleFileUploadSIP(event) {
+    //   let files = event
+    //   console.log(files)
+    //   this.form.sip = files
+    // },
+  },
+
+  mounted() {
+    this.specialistGet()
+    this.getuser()
+  },
+  created() {
+    this.userId = this.$cookies.get('loginCookie').data?.data.id
   },
 }
 </script>

@@ -16,6 +16,7 @@ class Room extends Model
         'room_image',
         'doctor_id',
         'room_capacity',
+        'secret_key',
         'total_favorites'
     ];
     public function doctor(){

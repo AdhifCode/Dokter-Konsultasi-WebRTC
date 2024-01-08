@@ -13,99 +13,46 @@
               color="grey lighten-1"
               playsinline
             ></video>
-            <div class="btn-action">
+            <div>
               <v-btn
-                outlined
-                tonal
+                fab
+                dark
                 :ripple="false"
-                rounded
-                icon
-                @click="videoButtonClicked ? stopVideo() : startVideo()"
+                color="#0C8CE9"
+                @click="toggleVideo()"
                 :class="{ 'button-clicked': videoButtonClicked }"
                 style="width: 56px; height: 56px"
               >
-                <svg
-                  class="controlIcon-10O-4h centerIcon-JYpTUi"
-                  aria-hidden="true"
-                  role="img"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    :fill="videoButtonClicked ? 'white' : 'black'"
-                    d="M21.526 8.149C21.231 7.966 20.862 7.951 20.553 8.105L18 9.382V7C18 5.897 17.103 5 16 5H4C2.897 5 2 5.897 2 7V17C2 18.104 2.897 19 4 19H16C17.103 19 18 18.104 18 17V14.618L20.553 15.894C20.694 15.965 20.847 16 21 16C21.183 16 21.365 15.949 21.526 15.851C21.82 15.668 22 15.347 22 15V9C22 8.653 21.82 8.332 21.526 8.149Z"
-                  ></path>
-                </svg>
+                <v-icon dark>{{
+                  videoButtonClicked ? 'mdi-video' : 'mdi-video-off'
+                }}</v-icon>
               </v-btn>
+
               <v-btn
-                outlined
-                tonal
+                fab
+                dark
                 :ripple="false"
-                rounded
-                icon
-                @click="voiceButtonClicked ? stopVoice() : startVoice()"
+                color="#31C9A2"
+                @click="toggleVoice()"
                 :class="{ 'button-clicked': voiceButtonClicked }"
                 style="width: 56px; height: 56px"
               >
-                <svg
-                  class="controlIcon-10O-4h centerIcon-JYpTUi"
-                  aria-hidden="true"
-                  role="img"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M6.7 11H5C5 12.19 5.34 13.3 5.9 14.28L7.13 13.05C6.86 12.43 6.7 11.74 6.7 11Z"
-                    :fill="voiceButtonClicked ? 'white' : 'black'"
-                  ></path>
-                  <path
-                    d="M9.01 11.085C9.015 11.1125 9.02 11.14 9.02 11.17L15 5.18V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 11.03 9.005 11.0575 9.01 11.085Z"
-                    :fill="voiceButtonClicked ? 'white' : 'black'"
-                  ></path>
-                  <path
-                    d="M11.7237 16.0927L10.9632 16.8531L10.2533 17.5688C10.4978 17.633 10.747 17.6839 11 17.72V22H13V17.72C16.28 17.23 19 14.41 19 11H17.3C17.3 14 14.76 16.1 12 16.1C11.9076 16.1 11.8155 16.0975 11.7237 16.0927Z"
-                    :fill="voiceButtonClicked ? 'white' : 'black'"
-                  ></path>
-                  <path
-                    d="M21 4.27L19.73 3L3 19.73L4.27 21L8.46 16.82L9.69 15.58L11.35 13.92L14.99 10.28L21 4.27Z"
-                    class="slash-2yrR11"
-                    :fill="voiceButtonClicked ? 'red' : 'black'"
-                  ></path></svg
-              ></v-btn>
+                <v-icon dark>{{
+                  voiceButtonClicked ? 'mdi-microphone' : 'mdi-microphone-off'
+                }}</v-icon>
+              </v-btn>
             </div>
           </div>
-
-          <div class="d-flex main" style="max-width: 170px">
-            <!-- <div > -->
-            <v-select
-              solo
-              prepend-icon="mdi-microphone"
-              v-model="selectedAudio"
-              @change="onChange"
-              :items="audios"
-            >
-            </v-select>
-            <v-select
-              solo
-              prepend-icon="mdi-video"
-              v-model="selectedVideo"
-              @change="onChange"
-              :items="videos"
-            ></v-select>
-
-            <v-select
-              prepend-icon="mdi-volume-high"
-              color="blue"
-              solo
-              depressed
-              v-model="selectedSpeaker"
-              @change="onChange"
-              :items="speakers"
-            >
-            </v-select></div
-        ></v-col>
+          <VideoSetting
+            :selectedAudio="selectedAudio"
+            :selectedVideo="selectedVideo"
+            :selectedSpeaker="selectedSpeaker"
+            :audios="audios"
+            :videos="videos"
+            :speakers="speakers"
+            @change="onChange"
+          />
+        </v-col>
         <v-col cols="4">
           <div>
             <p>
@@ -123,8 +70,10 @@
     
 <script>
 import Peer from 'skyway-js'
+import VideoSetting from '@/components/VideoSetting.vue'
 
 export default {
+  components: { VideoSetting },
   data() {
     return {
       APIKey: 'abe02cb1-4e86-49d6-87f0-d682a3fd6a5f',
@@ -144,17 +93,28 @@ export default {
   },
 
   methods: {
-    onChange: function () {
+    onChange({ selectedAudio, selectedVideo, selectedSpeaker }) {
+      this.selectedAudio = selectedAudio
+      this.selectedVideo = selectedVideo
+      this.selectedSpeaker = selectedSpeaker
+
       if (
-        this.selectedAudio != '' &&
-        this.selectedVideo != '' &&
-        this.selectedSpeaker != ''
+        this.selectedAudio !== '' &&
+        this.selectedVideo !== '' &&
+        this.selectedSpeaker !== ''
       ) {
         this.connectLocalCamera()
       }
+
+      const settings = {
+        selectedAudio: this.selectedAudio,
+        selectedVideo: this.selectedVideo,
+        selectedSpeaker: this.selectedSpeaker,
+      }
+      localStorage.setItem('meetingSettings', JSON.stringify(settings))
     },
 
-    connectLocalCamera: async function () {
+    async connectLocalCamera() {
       const constraints = {
         audio: this.selectedAudio
           ? { deviceId: { exact: this.selectedAudio } }
@@ -167,60 +127,104 @@ export default {
           : false,
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      document.getElementById('my-video').srcObject = stream
-      this.localStream = stream
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        document.getElementById('my-video').srcObject = stream
+        this.localStream = stream
+      } catch (err) {
+        console.error(err)
+      }
     },
 
-    join() {
-      this.$router.push(`../${this.inputId}`)
+    toggleVideo() {
+      this.videoButtonClicked = !this.videoButtonClicked
+      if (this.videoButtonClicked) {
+        this.startVideo()
+      } else {
+        this.stopCamera()
+      }
+      console.log(`Video state: ${this.videoButtonClicked ? 'ON' : 'OFF'}`)
     },
 
-    startVideo() {
-      this.videoButtonClicked = true
-      this.localStream.getVideoTracks().forEach((track) => {
-        track.enabled = true
-      })
+    toggleVoice() {
+      this.voiceButtonClicked = !this.voiceButtonClicked
+      if (this.voiceButtonClicked) {
+        this.startVoice()
+      } else {
+        this.stopVoice()
+      }
+      console.log(`Voice state: ${this.voiceButtonClicked ? 'ON' : 'OFF'}`)
     },
 
-    stopVideo() {
-      this.videoButtonClicked = false
-      this.localStream.getVideoTracks().forEach((track) => {
-        track.enabled = false
-      })
+    async startVideo() {
+      if (!this.localStream) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          })
+          this.localStream = new MediaStream()
+          stream
+            .getVideoTracks()
+            .forEach((track) => this.localStream.addTrack(track))
+          this.connectLocalCamera()
+          this.videoButtonClicked = true
+          console.log('Video started')
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      this.saveSettingsToLocal()
     },
 
-    startVoice() {
-      this.voiceButtonClicked = true
-      this.localStream.getAudioTracks().forEach((track) => {
-        track.enabled = true
-      })
+    stopCamera() {
+      if (this.localStream) {
+        this.localStream.getVideoTracks().forEach((track) => track.stop())
+        this.localStream = null
+        this.videoButtonClicked = false
+        console.log('Camera stopped')
+      }
+    },
+
+    async startVoice() {
+      if (!this.localStream) {
+        this.localStream = new MediaStream()
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        })
+        this.localStream.addTrack(stream.getAudioTracks()[0])
+        console.log('Voice started')
+      } catch (err) {
+        console.error(err)
+      }
+      this.saveSettingsToLocal()
     },
 
     stopVoice() {
-      this.voiceButtonClicked = false
-      this.localStream.getAudioTracks().forEach((track) => {
-        track.enabled = false
-      })
+      if (this.localStream) {
+        this.localStream.getAudioTracks().forEach((track) => track.stop())
+        console.log('Voice stopped')
+      }
+    },
+
+    saveSettingsToLocal() {
+      const settings = {
+        selectedAudio: this.selectedAudio,
+        selectedVideo: this.selectedVideo,
+        selectedSpeaker: this.selectedSpeaker,
+      }
+
+      localStorage.setItem('meetingSettings', JSON.stringify(settings))
     },
 
     joinRoom() {
-      this.$router.push(`/MainPage/action/${this.peerId}`)
+      this.$router.push(`/MainPage/action/room/consulting`)
+      const peer = this.$store.state.peer
+      const room = this.$store.state.room
     },
-
-    // joinRoom: function () {
-    //   console.log('joinRoom')
-    //   const call = this.peer.call(this.calltoid, this.localStream)
-    //   this.connect(call)
-    // },
-
-    // connect: function (call) {
-    //   call.on('stream', (stream) => {
-    //     const el = document.getElementById('their-video')
-    //     el.srcObject = stream
-    //     el.play()
-    //   })
-    // },
   },
 
   mounted() {

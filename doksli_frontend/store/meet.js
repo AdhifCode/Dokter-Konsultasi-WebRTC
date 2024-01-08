@@ -1,13 +1,13 @@
 export const state = () => ({
-  inputId: null,
+  peer: null,
+  room: null,
 })
 
 export const mutations = {
-  setInputId(state, id) {
-    state.inputId = id
+  setPeer(state, peer) {
+    state.peer = peer
   },
-}
-
-export const getters = {
-  getInputId: (state) => state.inputId,
+  setRoom(state, room) {
+    state.room = room
+  },
 }

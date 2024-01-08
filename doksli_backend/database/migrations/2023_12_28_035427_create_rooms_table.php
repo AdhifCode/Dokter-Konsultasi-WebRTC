@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('room_image');
             $table->unsignedBigInteger('doctor_id');
             $table->integer('room_capacity');
+            $table->string('secret_key');
             $table->integer('total_favorites');
             $table->timestamps();
         });

@@ -11,6 +11,7 @@ use App\Http\Controllers\api\DoctorController;
 use App\Http\Controllers\api\FavoriteController;
 use App\Http\Controllers\api\OrderController;
 use App\Http\Controllers\api\ScheduleController;
+use App\Http\Controllers\api\MainPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +48,7 @@ use App\Http\Controllers\api\ScheduleController;
     Route::get('/getuserchart', [UserController::class, 'getChartData']);
 
     // Doctor & Room
-    Route::post('/join-doctor', [DoctorController::class, 'registerDoctor']);
+    Route::post('/joindoctor', [DoctorController::class, 'registerDoctor']);
     Route::get('/getrooms', [RoomController::class, 'getAllRooms']);
     Route::get('/getroombyid/{room}', [RoomController::class, 'getRoomById']);
     Route::post('/favorite/{room}', [FavoriteController::class, 'toggleFavorite']);
@@ -63,7 +64,12 @@ use App\Http\Controllers\api\ScheduleController;
     
     // Schedule
     Route::get('/doctorschedule/{doctor}', [ScheduleController::class, 'viewOrdersByDoctor']);
-    
+
+    // MainPage
+    Route::get('/user-role-counts', [MainPageController::class, 'roleCount']);
+    Route::get('/total-order-count', [MainPageController::class, 'orderCount']);
+    Route::get('/specialists', [MainPageController::class, 'getAllSpecialists']);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

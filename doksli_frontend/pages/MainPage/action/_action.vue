@@ -321,6 +321,7 @@
         </v-row>
       </div>
       <div v-if="$route.path.includes('/meet')">
+        <div>Available</div>
         <v-card
           v-for="(orderItem, index) in upcomingOrders"
           :key="index"
@@ -329,6 +330,43 @@
           elevation="0"
           rounded-lg
           @click="room(orderItem.room.room_id)"
+        >
+          <v-container>
+            <div class="d-flex">
+              <v-avatar>
+                <v-img
+                  :src="
+                    orderItem.room.doctor.user.image
+                      ? `http://127.0.0.1:8000/storage/${orderItem.room.doctor.user.image}`
+                      : require('@/assets/img/unknown.jpeg')
+                  "
+                  class="elevation-6"
+                  alt=""
+                ></v-img
+              ></v-avatar>
+              <div class="ml-2">
+                <div class="font-weight-bold">
+                  {{ orderItem.room.room_title }}
+                </div>
+                <div class="font-italic">
+                  Dr. {{ orderItem.room.doctor.user.name }}
+                </div>
+              </div>
+              <div>
+                {{ $moment(orderItem.time_start).fromNow() }}
+              </div>
+            </div>
+          </v-container>
+        </v-card>
+        <div>Upcoming</div>
+        <v-card
+          v-for="(orderItem, index) in upcomingOrders"
+          :key="index"
+          class="d-flex mt-2"
+          outlined
+          elevation="0"
+          rounded-lg
+          disabled
         >
           <v-container>
             <div class="d-flex">
@@ -428,6 +466,7 @@ export default {
     return {
       userid: '',
       upcomingOrders: [],
+      availableOrders: {},
       recentOrders: [],
       showIcon: false,
       searchKeyword: '',
@@ -519,8 +558,14 @@ export default {
 
           const currentTime = this.$moment()
           this.recentOrders = orders.filter((order) => {
-            const orderTime = this.$moment(order.time_start)
+            const orderTime = this.$moment(order.time_end)
             return currentTime.diff(orderTime, 'seconds') >= 1
+          })
+
+          this.availableOrders = orders.filter((order) => {
+            const orderStartTime = this.$moment(order.time_start)
+            const orderEndTime = this.$moment(order.time_end)
+            return currentTime.isBetween(orderStartTime, orderEndTime)
           })
 
           this.upcomingOrders = orders.filter((order) => {
@@ -606,10 +651,10 @@ export default {
       this.$router.push('/MainPage/action' + data)
     },
     room(id) {
-      const orderItem = this.rooms.find((item) => item.room_id === id)
+      const orderItem = this.rooms
       if (orderItem) {
-        console.log('Idnya', orderItem.room_id)
-        this.$store.commit('meet/setInputId', orderItem.room_id)
+        console.log('Idnya', orderItem.secret_key)
+        this.$store.commit('meet/setInputId', orderItem.secret_key)
         this.$router.push('/MainPage/action/room')
       } else {
         console.error('Card item not found for id:', id)

@@ -9,6 +9,7 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 
 class DoctorController extends Controller
@@ -22,7 +23,6 @@ class DoctorController extends Controller
             'experience' => 'required',
             'room_title' => 'required',
             'room_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'total_favorites' => 'nullable',
         ]);
 
         $user = User::find($request->input('user_id'));
@@ -31,17 +31,11 @@ class DoctorController extends Controller
             $user->role_id = 3;
             $user->save();
         }
-        // if ($request->hasFile('image')) {
-        //     $imagePath = $request->file('image')->store('user_images', 'public');
-        //     $input['image'] = $imagePath;
-        // }
         $sipImage = $request->file('SIP')->store('sip_images', 'public');
-        // $sipImageUrl = Storage::url($sipImage);
 
         $doctor = Doctor::create([
             'user_id' => $request->input('user_id'),
             'specialist_id' => $request->input('specialist_id'),
-            // 'SIP' => $sipImageUrl,
             'SIP' => $sipImage,
             'experience' => $request->input('experience'),
         ]);
@@ -53,6 +47,7 @@ class DoctorController extends Controller
             }
 
         $roomImage = $request->file('room_image')->store('room_images', 'public');
+        $SecretKey = Str::random(10);
         // $roomImageUrl = Storage::url($roomImage);
 
         $room = Room::create([
@@ -60,12 +55,11 @@ class DoctorController extends Controller
             // 'room_image' => $roomImageUrl, 
             'room_image' => $roomImage, 
             'doctor_id' => $doctor->doctor_id,
-            'total_favorites' => $request->input('total_favorites'),
+            'secret_key' => $SecretKey,
         ]);
 
         $doctorId = $doctor->doctor_id;
 
-        // Update user dengan menetapkan doctor_id yang baru dibuat
         DB::table('users')
             ->where('id', $user->id)
             ->update(['doctor_id' => $doctorId]);

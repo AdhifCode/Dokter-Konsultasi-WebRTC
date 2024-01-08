@@ -121,95 +121,78 @@
           <p>Ini adalah doctor yang cocok, cocok oe hantamm</p>
         </div>
         <div class="d-flex justify-space-between">
-          <div>
-            <v-card
-              v-for="(cardItem, index) in top3"
-              :key="index"
-              style="border-radius: 20px"
-              elevation="4"
-              width="360"
-              height="auto"
-            >
-              <v-img
-                v-if="$vuetify.breakpoint.xs"
-                height="200px"
-                style="display: none"
-              ></v-img>
+          <v-card
+            v-for="(cardItem, index) in top3"
+            :key="index"
+            style="border-radius: 20px"
+            elevation="4"
+            width="360"
+            height="auto"
+          >
+            <v-img
+              v-if="$vuetify.breakpoint.xs"
+              height="200px"
+              style="display: none"
+            ></v-img>
 
-              <v-img
-                v-else
-                :src="`http://127.0.0.1:8000/storage/${cardItem.room_image}`"
-                height="200px"
-              ></v-img>
+            <v-img
+              v-else
+              :src="`http://127.0.0.1:8000/storage/${cardItem.room_image}`"
+              height="200px"
+            ></v-img>
 
-              <v-card-actions>
-                <v-list-item class="grow">
-                  <v-list-item-avatar color="grey darken-3">
-                    <v-img
-                      :src="
-                        cardItem.user_image
-                          ? `http://127.0.0.1:8000/storage/${cardItem.user_image}`
-                          : require('@/assets/img/unknown.jpeg')
-                      "
-                      class="elevation-6"
-                      alt=""
-                    ></v-img>
-                  </v-list-item-avatar>
+            <v-card-actions>
+              <v-list-item class="grow">
+                <v-list-item-avatar color="grey darken-3">
+                  <v-img
+                    :src="
+                      cardItem.user_image
+                        ? `http://127.0.0.1:8000/storage/${cardItem.user_image}`
+                        : require('@/assets/img/unknown.jpeg')
+                    "
+                    class="elevation-6"
+                    alt=""
+                  ></v-img>
+                </v-list-item-avatar>
 
-                  <v-list-item-content>
-                    <v-list-item-title class="text-capitalize">{{
-                      cardItem.name
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                  <v-row align="center" justify="end">
-                    <v-btn icon depressed color="red">
-                      <v-icon>mdi-heart</v-icon>
-                    </v-btn>
-                    <span class="subheading mr-2">{{
-                      cardItem.total_favorites
-                    }}</span>
-                  </v-row>
-                </v-list-item>
-              </v-card-actions>
+                <v-list-item-content>
+                  <v-list-item-title class="text-capitalize">{{
+                    cardItem.name
+                  }}</v-list-item-title>
+                </v-list-item-content>
+                <v-row align="center" justify="end">
+                  <v-btn icon depressed color="red">
+                    <v-icon>mdi-heart</v-icon>
+                  </v-btn>
+                  <span class="subheading mr-2">{{
+                    cardItem.total_favorites
+                  }}</span>
+                </v-row>
+              </v-list-item>
+            </v-card-actions>
 
-              <v-card-title>{{ cardItem.title }}</v-card-title>
+            <v-card-title>{{ cardItem.title }}</v-card-title>
 
-              <v-card-actions>
-                <v-list-item class="grow">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ cardItem.name }}</v-list-item-title>
-                  </v-list-item-content>
+            <v-card-actions>
+              <v-list-item class="grow">
+                <v-list-item-content>
+                  <v-list-item-title>{{
+                    cardItem.experience
+                  }}</v-list-item-title>
+                </v-list-item-content>
 
-                  <div>
-                    <span class="subheading mr-2">{{
-                      cardItem.specialist
-                    }}</span>
-                  </div>
-                </v-list-item>
-              </v-card-actions>
-            </v-card>
-          </div>
-          <div>
-            <v-card
-              style="border-radius: 20px"
-              elevation="4"
-              width="360"
-              height="360"
-            ></v-card>
-          </div>
-          <div>
-            <v-card
-              style="border-radius: 20px"
-              elevation="4"
-              width="360"
-              height="360"
-            ></v-card>
-          </div></div
-      ></v-container>
+                <div>
+                  <span class="subheading mr-2">{{ cardItem.specialist }}</span>
+                </div>
+              </v-list-item>
+            </v-card-actions>
+          </v-card>
+        </div></v-container
+      >
     </div>
     <div>
       <v-container
-        ><v-row>
+        ><v-row justify="center" align="center">
           <v-col>
             <h2>Become an specialist</h2>
             <p>
@@ -231,7 +214,9 @@
           </v-col>
           <v-col
             ><v-img
-              :src="require('@/assets/img/LoginPage_img.jpeg')"
+              :src="require('@/assets/img/join.png')"
+              height="auto"
+              width="600"
               style="border-radius: 20px 0px 0px 20px"
             >
             </v-img>
@@ -271,29 +256,64 @@ export default {
           text: 'Real-time video calls improve symptom understanding and enable personalized advice for better healthcare.',
         },
       ],
-      statusItem: [
-        {
-          title: 'Doctors',
-          Counts: 4,
-          icon: 'mdi-doctor',
-          iconBackground: '#31C9A2',
-        },
-        {
-          title: 'Patients',
-          Counts: 90,
-          icon: 'mdi-account-injury',
-          iconBackground: '#FF6B82',
-        },
-        {
-          title: 'Consults',
-          Counts: 40,
-          icon: 'mdi-information',
-          iconBackground: '#9675F7',
-        },
-      ],
+      statusItem: [],
+      patientCount: 0,
+      doctorCount: 0,
+      orderCount: 0,
     }
   },
   methods: {
+    getRoleCounts() {
+      axios
+        .get(`http://localhost:8000/api/user-role-counts`)
+        .then((response) => {
+          this.patientCount =
+            response.data.role_counts.find((role) => role.role_id === 4)
+              ?.count || 0
+          this.doctorCount =
+            response.data.role_counts.find((role) => role.role_id === 3)
+              ?.count || 0
+
+          this.statusItem = [
+            {
+              title: 'Doctors',
+              Counts: this.doctorCount,
+              icon: 'mdi-doctor',
+              iconBackground: '#31C9A2',
+            },
+            {
+              title: 'Patients',
+              Counts: this.patientCount,
+              icon: 'mdi-account-injury',
+              iconBackground: '#FF6B82',
+            },
+            {
+              title: 'Consults',
+              Counts: this.orderCount,
+              icon: 'mdi-information',
+              iconBackground: '#9675F7',
+            },
+          ]
+
+          console.log(this.orderCount)
+        })
+        .catch((error) => {
+          console.error('Error fetching user role counts:', error)
+        })
+    },
+
+    getOrderCount() {
+      axios
+        .get(`http://localhost:8000/api/total-order-count`)
+        .then((response) => {
+          console.log('API Response (getOrderCount):', response)
+          this.orderCount = response.data.order_count
+        })
+        .catch((error) => {
+          console.error('Error fetching total order count:', error)
+        })
+    },
+
     getPopularData() {
       axios
         .get(`http://localhost:8000/api/top3`)
@@ -335,8 +355,9 @@ export default {
     },
   },
   mounted() {
+    this.getOrderCount()
+    this.getRoleCounts()
     this.getPopularData()
-    console.log('top3 data:', this.top3)
   },
 }
 </script>
