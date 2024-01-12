@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Doctor;
 use App\Models\Role;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,8 +15,8 @@ class UserController extends Controller
     public function getUserById($id)
 {
     try {
-        $user = User::with('role')->findOrFail($id);
-
+        $user = User::with(['role', 'doctor.room'])->findOrFail($id);
+    
         return response()->json([
             'data' => $user,
             'message' => 'Berhasil ambil data user dengan ID ' . $id,
@@ -30,6 +31,7 @@ class UserController extends Controller
             'status' => 500,
         ], 500);
     }
+    
 }
 
     public function store(Request $request)

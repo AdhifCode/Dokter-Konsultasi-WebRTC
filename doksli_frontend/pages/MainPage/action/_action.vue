@@ -321,80 +321,190 @@
         </v-row>
       </div>
       <div v-if="$route.path.includes('/meet')">
-        <div>Available</div>
-        <v-card
-          v-for="(orderItem, index) in upcomingOrders"
-          :key="index"
-          class="d-flex mt-2"
-          outlined
-          elevation="0"
-          rounded-lg
-          @click="room(orderItem.room.room_id)"
-        >
-          <v-container>
-            <div class="d-flex">
-              <v-avatar>
-                <v-img
-                  :src="
-                    orderItem.room.doctor.user.image
-                      ? `http://127.0.0.1:8000/storage/${orderItem.room.doctor.user.image}`
-                      : require('@/assets/img/unknown.jpeg')
-                  "
-                  class="elevation-6"
-                  alt=""
-                ></v-img
-              ></v-avatar>
-              <div class="ml-2">
-                <div class="font-weight-bold">
-                  {{ orderItem.room.room_title }}
+        <!-- <div v-if="loading">
+          <v-skeleton-loader
+            width="200"
+            type="card, list-item-three-line"
+          ></v-skeleton-loader>
+        </div>
+        <div v-else class="pt-8 text-center">
+          <strong class="font-weight-black" style="font-size: xx-large">
+            Consults Schedule
+          </strong>
+          <p class="pt-4" style="max-width: 800px; margin: 0 auto">
+            Efficiently manage upcoming and past consultations with a
+            user-friendly scheduling interface. View upcoming appointments and
+            review past consultations seamlessly. Streamlining the scheduling
+            process for an enhanced user experience.
+          </p>
+        </div> -->
+        <div v-if="loading" class="d-flex">
+          <v-row
+            ><v-col cols="7"
+              ><v-skeleton-loader
+                v-if="loading"
+                type="date-picker-options"
+              ></v-skeleton-loader
+              ><v-skeleton-loader
+                v-if="loading"
+                type="date-picker-days"
+              ></v-skeleton-loader
+              ><v-skeleton-loader
+                v-if="loading"
+                type="date-picker-days"
+              ></v-skeleton-loader></v-col
+            ><v-col col="5"
+              ><v-skeleton-loader
+                width="400"
+                type="image"
+              ></v-skeleton-loader></v-col
+          ></v-row>
+        </div>
+        <div v-else>
+          <div v-if="profile.role_id !== 3">
+            <v-card
+              ><v-container
+                ><div class="font-weight-bold" style="font-size: larger">
+                  Available
                 </div>
-                <div class="font-italic">
-                  Dr. {{ orderItem.room.doctor.user.name }}
+                <v-card-subtitle
+                  v-if="!upcomingOrders || upcomingOrders.length === 0"
+                  class="text-center"
+                  >There is no Order right now</v-card-subtitle
+                >
+                <div v-else>
+                  <v-card-item
+                    v-for="(orderItem, index) in upcomingOrders"
+                    :key="index"
+                    class="d-flex mt-2"
+                    outlined
+                    elevation="0"
+                    rounded-lg
+                  >
+                    <v-container>
+                      <v-row align="center" justify-center>
+                        <v-col
+                          ><v-avatar>
+                            <v-img
+                              :src="
+                                orderItem.room.doctor.user.image
+                                  ? `http://127.0.0.1:8000/storage/${orderItem.room.doctor.user.image}`
+                                  : require('@/assets/img/unknown.jpeg')
+                              "
+                              class="elevation-6"
+                              alt=""
+                            ></v-img
+                          ></v-avatar>
+                          <div class="font-weight-bold">
+                            {{ orderItem.room.time_start }}
+                          </div></v-col
+                        >
+                        <v-col
+                          ><v-row justify="center" align="center"
+                            ><div class="font-italic">
+                              Dr. {{ orderItem.room.doctor.user.name }}
+                            </div>
+                            <div>
+                              {{ $moment(orderItem.time_start).fromNow() }}
+                            </div></v-row
+                          ></v-col
+                        >
+                        <v-col class="text-right"
+                          ><v-btn
+                            rounded
+                            dense
+                            dark
+                            class="text-capitalize"
+                            color="#0C8CE9"
+                            @click="room(orderItem.room.room_id)"
+                          >
+                            Join Room</v-btn
+                          ></v-col
+                        >
+                      </v-row>
+                    </v-container>
+                  </v-card-item>
                 </div>
-              </div>
-              <div>
-                {{ $moment(orderItem.time_start).fromNow() }}
-              </div>
-            </div>
-          </v-container>
-        </v-card>
-        <div>Upcoming</div>
-        <v-card
-          v-for="(orderItem, index) in upcomingOrders"
-          :key="index"
-          class="d-flex mt-2"
-          outlined
-          elevation="0"
-          rounded-lg
-          disabled
-        >
-          <v-container>
-            <div class="d-flex">
-              <v-avatar>
-                <v-img
-                  :src="
-                    orderItem.room.doctor.user.image
-                      ? `http://127.0.0.1:8000/storage/${orderItem.room.doctor.user.image}`
-                      : require('@/assets/img/unknown.jpeg')
-                  "
-                  class="elevation-6"
-                  alt=""
-                ></v-img
-              ></v-avatar>
-              <div class="ml-2">
-                <div class="font-weight-bold">
-                  {{ orderItem.room.room_title }}
+              </v-container></v-card
+            >
+            <v-card
+              ><v-container
+                ><div class="font-weight-bold" style="font-size: larger">
+                  Upcoming
                 </div>
-                <div class="font-italic">
-                  Dr. {{ orderItem.room.doctor.user.name }}
+                <v-card-subtitle
+                  v-if="!upcomingOrders || upcomingOrders.length === 0"
+                  class="text-center"
+                  >There is no upcoming orders right now</v-card-subtitle
+                >
+                <div v-else>
+                  <v-card-item
+                    v-for="(orderItem, index) in upcomingOrders"
+                    :key="index"
+                    class="d-flex mt-2"
+                    outlined
+                    elevation="0"
+                    rounded-lg
+                    disabled
+                  >
+                    <v-container>
+                      <div class="d-flex">
+                        <v-avatar>
+                          <v-img
+                            :src="
+                              orderItem.room.doctor.user.image
+                                ? `http://127.0.0.1:8000/storage/${orderItem.room.doctor.user.image}`
+                                : require('@/assets/img/unknown.jpeg')
+                            "
+                            class="elevation-6"
+                            alt=""
+                          ></v-img
+                        ></v-avatar>
+                        <div class="ml-2">
+                          <div class="font-weight-bold">
+                            {{ orderItem.room.room_title }}
+                          </div>
+                          <div class="font-italic">
+                            Dr. {{ orderItem.room.doctor.user.name }}
+                          </div>
+                        </div>
+                        <div>
+                          {{ $moment(orderItem.time_start).fromNow() }}
+                        </div>
+                      </div>
+                    </v-container>
+                  </v-card-item>
                 </div>
-              </div>
-              <div>
-                {{ $moment(orderItem.time_start).fromNow() }}
-              </div>
-            </div>
-          </v-container>
-        </v-card>
+              </v-container>
+            </v-card>
+          </div>
+          <div v-else>
+            <v-container
+              ><v-row
+                ><v-col cols="7" style="max-height: 100px"
+                  ><DoctorSchedule
+                /></v-col>
+                <v-col cols="5"
+                  ><div
+                    class="d-flex align-center justify-center"
+                    :style="{
+                      'background-image': `url(http://127.0.0.1:8000/storage/${profile.doctor.room.room_image})`,
+                    }"
+                  >
+                    <v-btn
+                      rounded
+                      dark
+                      class="text-capitalize"
+                      dense
+                      color="#0C8CE9"
+                      >Enter Room</v-btn
+                    >
+                  </div></v-col
+                ></v-row
+              ></v-container
+            >
+          </div>
+        </div>
       </div>
       <!-- <div v-else>Kosong kang</div> -->
       <!-- <div class="text-center">
@@ -489,6 +599,7 @@ export default {
       profile: [],
       tampungfoto: '',
       preview: null,
+      loading: true,
     }
   },
   methods: {
@@ -651,11 +762,11 @@ export default {
       this.$router.push('/MainPage/action' + data)
     },
     room(id) {
-      const orderItem = this.rooms
+      const orderItem = this.upcomingOrders.find((item) => item.room_id === id)
+
       if (orderItem) {
-        console.log('Idnya', orderItem.secret_key)
-        this.$store.commit('meet/setInputId', orderItem.secret_key)
-        this.$router.push('/MainPage/action/room')
+        console.log(orderItem)
+        this.$store.dispatch('meet/makePermission', orderItem)
       } else {
         console.error('Card item not found for id:', id)
       }
@@ -701,6 +812,9 @@ export default {
     })
     this.getFavoriteRooms()
     this.getUserData()
+    setTimeout(() => {
+      this.loading = false
+    }, 20000)
   },
 
   created() {
@@ -716,6 +830,14 @@ export default {
 </script>
 
 <style scoped>
+.custom-skeleton {
+  height: 100%;
+}
+.custom-skeleton ::v-deep .v-skeleton-loader > * {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 .scrollable-container {
   max-height: 175px;
   overflow-y: auto;

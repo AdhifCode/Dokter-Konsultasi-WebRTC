@@ -1,28 +1,31 @@
 <template>
-  <div>
-    <span>Audio : </span>
+  <div class="d-flex">
     <v-select
+      style="width: 300px"
       solo
+      rounded
       outlined
-      :prepend-icon="audioIcon"
+      prepend-inner-icon="mdi-microphone"
       v-model="selectedAudio"
       @change="onChange"
       :items="audios"
     ></v-select>
-    <span>Camera : </span>
     <v-select
       solo
+      style="width: 300px"
+      rounded
       outlined
-      :prepend-icon="videoIcon"
+      prepend-inner-icon="mdi-video"
       v-model="selectedVideo"
       @change="onChange"
       :items="videos"
     ></v-select>
-    <span>Speaker : </span>
     <v-select
-      :prepend-icon="speakerIcon"
+      prepend-inner-icon="mdi-volume-high"
       color="blue"
       solo
+      rounded
+      style="width: 300px"
       outlined
       depressed
       v-model="selectedSpeaker"
@@ -31,8 +34,8 @@
     ></v-select>
   </div>
 </template>
-    
-  <script>
+
+<script>
 export default {
   props: {
     selectedAudio: String,
@@ -60,4 +63,3 @@ export default {
   },
 }
 </script>
-  

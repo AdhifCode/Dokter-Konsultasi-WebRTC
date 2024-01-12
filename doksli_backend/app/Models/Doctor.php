@@ -14,6 +14,7 @@ class Doctor extends Model
         'doctor_id',
         'user_id',
         'specialist_id',
+        'room_id',
         'SIP',//image
         'experience'
     ];

@@ -1,16 +1,65 @@
 <template>
   <v-container>
-    <v-card rounded-lg>
-      <v-container
-        ><v-card-actions>
-          <v-btn @click="setTimeRange('1m')">Month</v-btn>
-          <v-btn @click="setTimeRange('1y')">Year</v-btn>
-          <v-btn @click="showAllTime()">All Time</v-btn>
-        </v-card-actions>
-        <Chart :chartOptions="chartOptions"
-      /></v-container>
-    </v-card>
-    <v-card class="mt-10"></v-card>
+    <h1>Dashboard</h1>
+    <v-row
+      ><v-col cols="6"
+        ><v-card rounded-lg>
+          <v-container>
+            <div class="d-flex">
+              <v-card-title class="text-center">Activity</v-card-title>
+              <v-card-actions class="ml-auto">
+                <v-select
+                  min-width="150px"
+                  dense
+                  outlined
+                  v-model="selectedTimeRange"
+                  :items="timeRanges"
+                  @change="setTimeRange"
+                  hide-details
+                  :style="{
+                    width: '120px',
+                    'border-radius': '20px',
+                  }"
+                ></v-select>
+              </v-card-actions>
+            </div>
+
+            <Chart :chartOptions="chartOptions" />
+          </v-container>
+        </v-card>
+      </v-col>
+      <v-col cols="6"
+        ><v-card
+          ><v-card-title>Top performers</v-card-title
+          ><v-card-actions v-for="(user, index) in top3" :key="index">
+            <v-list-item class="grow">
+              <v-list-item-avatar color="grey darken-3" size="75">
+                <v-img
+                  class="elevation-6"
+                  alt=""
+                  :src="
+                    user.user_image
+                      ? `http://127.0.0.1:8000/storage/${user.user_image}`
+                      : require('@/assets/img/unknown.jpeg')
+                  "
+                ></v-img>
+              </v-list-item-avatar>
+
+              <v-list-item-content>
+                <v-list-item-title class="font-weight-bold text-capitalize">{{
+                  user.name
+                }}</v-list-item-title>
+              </v-list-item-content>
+
+              <span class="subheading">{{ user.email }}</span>
+              <v-row align="center" justify="end">
+                <span class="subheading mr-2">{{ user.total_favorites }}</span>
+              </v-row>
+            </v-list-item>
+          </v-card-actions>
+        </v-card></v-col
+      >
+    </v-row>
   </v-container>
 </template>
 
@@ -24,14 +73,16 @@ export default {
     Chart,
   },
   layout: 'Admin',
+  middleware: 'admin',
   data() {
     return {
       chartOptions: {
         chart: {
+          height: 300,
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'New User Chart',
+          text: '',
         },
         xAxis: {
           type: 'datetime',
@@ -84,37 +135,18 @@ export default {
       menu: false,
       message: false,
       hints: true,
-      user: {
-        initials: 'JD',
-        fullName: 'John Doe',
-        email: 'john.doe@doe.com',
-      },
-      routersku: [
-        {
-          nama: 'Produk',
-          rt: '/halaman-admin/management-produk',
-          icon: 'mdi-store-plus',
-        },
-        {
-          nama: 'User',
-          rt: '/halaman-admin/management-user',
-          icon: 'mdi-package-variant-closed-plus',
-        },
-        {
-          nama: 'Log Aktivitas',
-          rt: '/halaman-admin/management-logactivity',
-          icon: 'mdi-store-check-outline',
-        },
-      ],
+      top3: {},
       originalData: [],
       filteredData: [],
+      selectedTimeRange: 'Month',
+      timeRanges: ['Month', 'Year', 'All Time'],
     }
   },
   watch: {
     originalData: {
       handler() {
         this.$nextTick(() => {
-          this.setTimeRange('1m')
+          this.setTimeRange('Month')
         })
       },
       deep: true,
@@ -122,6 +154,17 @@ export default {
     },
   },
   methods: {
+    getPopularData() {
+      axios
+        .get(`http://localhost:8000/api/top3`)
+        .then((response) => {
+          console.log('API Response:', response)
+          this.top3 = response.data?.top_rooms
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error)
+        })
+    },
     getuser() {
       axios
         .get('http://127.0.0.1:8000/api/getuserchart')
@@ -150,7 +193,7 @@ export default {
       const currentMonth = now.getMonth()
 
       switch (range) {
-        case '1m':
+        case 'Month':
           this.chartOptions.xAxis.labels.formatter = function () {
             const date = new Date(this.value)
             if (
@@ -170,7 +213,7 @@ export default {
             )
           })
           break
-        case '1y':
+        case 'Year':
           this.chartOptions.xAxis.labels.formatter = function () {
             const date = new Date(this.value)
             if (date.getFullYear() === currentYear) {
@@ -202,6 +245,31 @@ export default {
           })
 
           this.filteredData = mergedData
+          break
+        case 'All Time':
+          this.chartOptions.xAxis.labels.formatter = function () {
+            return Highcharts.dateFormat('%Y', this.value)
+          }
+          const mergedDataAll = []
+          const dataByYear = {}
+
+          this.originalData.forEach(([date, value]) => {
+            const dataDate = new Date(eval(date))
+            const year = dataDate.getFullYear()
+
+            if (dataByYear[year]) {
+              dataByYear[year] += value
+            } else {
+              dataByYear[year] = value
+            }
+          })
+
+          Object.entries(dataByYear).forEach(([year, value]) => {
+            const date = Date.UTC(year, 0, 1)
+            mergedDataAll.push([date, value])
+          })
+
+          this.filteredData = mergedDataAll
           break
       }
 
@@ -243,5 +311,11 @@ export default {
   created() {
     this.getuser()
   },
+  mounted() {
+    this.getPopularData()
+  },
 }
 </script>
+
+<style scoped>
+</style>

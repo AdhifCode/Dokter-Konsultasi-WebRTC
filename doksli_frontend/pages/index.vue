@@ -34,11 +34,14 @@
                 v-for="(status, index) in statusItem"
                 :key="index"
                 outlined
-                style="border-radius: 15px"
+                style="
+                  border-radius: 15px;
+                  box-shadow: 0 4px 8px rgba(12, 140, 233, 0.1);
+                "
                 width="125px"
-                height="150px"
+                height="160px"
               >
-                <v-card-actions class="justify-center">
+                <v-card-actions class="justify-center my-1">
                   <v-btn
                     fab
                     depressed
@@ -46,18 +49,23 @@
                     dark
                     large
                     :color="status.iconBackground"
-                    ><v-icon dark x-large>{{ status.icon }}</v-icon></v-btn
-                  ></v-card-actions
-                ><v-card-title
+                  >
+                    <v-icon dark x-large>{{ status.icon }}</v-icon>
+                  </v-btn>
+                </v-card-actions>
+                <v-card-title
                   class="pa-0 justify-center"
                   :style="{ color: status.iconBackground }"
-                  >{{ status.Counts }}</v-card-title
-                ><v-card-title
-                  class="pa-1 justify-center"
+                >
+                  {{ status.Counts }}
+                </v-card-title>
+                <v-card-title
+                  class="pa-0 justify-center"
                   :style="{ color: status.iconBackground }"
-                  >{{ status.title }}</v-card-title
-                ></v-card
-              >
+                >
+                  {{ status.title }}
+                </v-card-title>
+              </v-card>
             </div>
           </v-col>
           <v-col class="col-5 d-flex align-center">
@@ -98,10 +106,22 @@
             <h1 style="font-size: 32px">
               Benefit from our online <br />consultation
             </h1>
-            <div v-for="(benefit, index) in benefitItems" :key="index">
+            <div
+              class="mt-4"
+              v-for="(benefit, index) in benefitItems"
+              :key="index"
+            >
               <div class="d-flex">
-                <v-btn icon x-large depressed :ripple="false" plain>
-                  <v-icon>{{ benefit.icon }}</v-icon>
+                <v-btn
+                  class="mx-2"
+                  fab
+                  dark
+                  small
+                  depressed
+                  :color="benefit.color"
+                  :ripple="false"
+                >
+                  <v-icon dark>{{ benefit.icon }}</v-icon>
                 </v-btn>
                 <div>
                   <h3>{{ benefit.title }}</h3>
@@ -114,83 +134,98 @@
           <div></div></v-row
       ></v-container>
     </div>
-    <div>
+    <div class="mt-6">
       <v-container
         ><div class="text-center">
-          <h1>Our Popular Consultate</h1>
+          <h1>Our Popular Consults</h1>
           <p>Ini adalah doctor yang cocok, cocok oe hantamm</p>
         </div>
         <div class="d-flex justify-space-between">
-          <v-card
+          <div
             v-for="(cardItem, index) in top3"
             :key="index"
-            style="border-radius: 20px"
-            elevation="4"
-            width="360"
-            height="auto"
+            class="custom-shadow"
+            style="border-radius: 20px; box-shadow: 3px 3px 5px 1px #0c8ce9"
           >
-            <v-img
-              v-if="$vuetify.breakpoint.xs"
-              height="200px"
-              style="display: none"
-            ></v-img>
+            <v-card
+              elevation="0"
+              style="border-radius: 20px"
+              width="360"
+              height="auto"
+            >
+              <v-img
+                v-if="$vuetify.breakpoint.xs"
+                height="250px"
+                style="display: none"
+              ></v-img>
 
-            <v-img
-              v-else
-              :src="`http://127.0.0.1:8000/storage/${cardItem.room_image}`"
-              height="200px"
-            ></v-img>
+              <v-img
+                v-else
+                :src="`http://127.0.0.1:8000/storage/${cardItem.room_image}`"
+                height="250px"
+                style="border-radius: 20px"
+              ></v-img>
 
-            <v-card-actions>
-              <v-list-item class="grow">
-                <v-list-item-avatar color="grey darken-3">
-                  <v-img
-                    :src="
-                      cardItem.user_image
-                        ? `http://127.0.0.1:8000/storage/${cardItem.user_image}`
-                        : require('@/assets/img/unknown.jpeg')
+              <v-card-actions>
+                <v-list-item class="grow">
+                  <v-list-item-avatar color="grey darken-3">
+                    <v-img
+                      :src="
+                        cardItem.user_image
+                          ? `http://127.0.0.1:8000/storage/${cardItem.user_image}`
+                          : require('@/assets/img/unknown.jpeg')
+                      "
+                      class="elevation-6"
+                      alt=""
+                    ></v-img>
+                  </v-list-item-avatar>
+
+                  <v-list-item-content>
+                    <v-list-item-title class="text-capitalize">{{
+                      cardItem.name
+                    }}</v-list-item-title>
+                  </v-list-item-content>
+                  <v-row align="center" justify="end">
+                    <v-btn icon depressed color="red">
+                      <v-icon>mdi-heart</v-icon>
+                    </v-btn>
+                    <span class="subheading mr-2">{{
+                      cardItem.total_favorites
+                    }}</span>
+                  </v-row>
+                </v-list-item>
+              </v-card-actions>
+
+              <v-card-title>{{ cardItem.title }}</v-card-title>
+
+              <v-card-actions>
+                <v-list-item class="grow">
+                  <v-list-item-content>
+                    <v-list-item-title>{{
+                      cardItem.experience
+                    }}</v-list-item-title>
+                  </v-list-item-content>
+
+                  <div
+                    style="
+                      background-color: #0c8ce9;
+                      border-radius: 5px;
+                      color: white;
                     "
-                    class="elevation-6"
-                    alt=""
-                  ></v-img>
-                </v-list-item-avatar>
-
-                <v-list-item-content>
-                  <v-list-item-title class="text-capitalize">{{
-                    cardItem.name
-                  }}</v-list-item-title>
-                </v-list-item-content>
-                <v-row align="center" justify="end">
-                  <v-btn icon depressed color="red">
-                    <v-icon>mdi-heart</v-icon>
-                  </v-btn>
-                  <span class="subheading mr-2">{{
-                    cardItem.total_favorites
-                  }}</span>
-                </v-row>
-              </v-list-item>
-            </v-card-actions>
-
-            <v-card-title>{{ cardItem.title }}</v-card-title>
-
-            <v-card-actions>
-              <v-list-item class="grow">
-                <v-list-item-content>
-                  <v-list-item-title>{{
-                    cardItem.experience
-                  }}</v-list-item-title>
-                </v-list-item-content>
-
-                <div>
-                  <span class="subheading mr-2">{{ cardItem.specialist }}</span>
-                </div>
-              </v-list-item>
-            </v-card-actions>
-          </v-card>
+                  >
+                    <span
+                      class="subheading mx-2 text-capitalize font-weight-medium"
+                      >{{ cardItem.specialist }}</span
+                    >
+                  </div>
+                </v-list-item>
+              </v-card-actions>
+            </v-card>
+          </div>
         </div></v-container
       >
     </div>
-    <div>
+    <div class="mt-10">
       <v-container
         ><v-row justify="center" align="center">
           <v-col>
@@ -204,10 +239,15 @@
               from the comfort of your own space
             </p>
             <v-btn
-              style="font-size: 14px"
-              class="text-capitalize white"
-              width="140px"
-              height="55px"
+              style="
+                font-size: 14px;
+                letter-spacing: 1px;
+                border-radius: 10px;
+                box-shadow: -2px 2px 4px 0px #0c8ce9;
+              "
+              class="text-capitalize white font-weight-bold"
+              rounded-lg
+              height="45px"
               @click="goToJoin()"
               >Click Here To Apply</v-btn
             >
@@ -244,16 +284,19 @@ export default {
           icon: 'mdi-phone',
           title: 'Convenience and Accessibility',
           text: 'Access healthcare from home, ideal for remote locations or those with mobility challenges.',
+          color: '#31C9A2',
         },
         {
-          icon: '',
+          icon: 'mdi-sun-clock-outline',
           title: 'Time Efficiency',
           text: 'Save time by eliminating travel and waiting, making consultations more efficient.',
+          color: '#9675F7',
         },
         {
-          icon: '',
+          icon: 'mdi-doctor',
           title: 'Enhanced Doctor-Patient Communication',
           text: 'Real-time video calls improve symptom understanding and enable personalized advice for better healthcare.',
+          color: '#FF6B82',
         },
       ],
       statusItem: [],

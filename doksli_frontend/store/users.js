@@ -23,11 +23,9 @@ export const actions = {
   getuserlogin({ commit }) {
     const usid = this.$cookies.get('loginCookie')
     const userid = usid.data.id
-    axios
-      .get('http://127.0.0.1:8000/api/getuserlogin/' + userid)
-      .then((respon) => {
-        commit('GETUSERLOGIN', respon.data?.data)
-      })
+    axios.get('http://127.0.0.1:8000/api/users/' + userid).then((respon) => {
+      commit('GETUSERLOGIN', respon.data?.data)
+    })
   },
   setcookie({ commit }) {
     console.log('setcookie action called')
@@ -35,6 +33,7 @@ export const actions = {
     console.log('cookie value:', loginCookie)
     commit('SETCOOKIE', loginCookie)
   },
+  
   login({ commit, $router }, payload) {
     this.$cookies.set('loginCookie', payload)
     commit('SETCOOKIE', payload)

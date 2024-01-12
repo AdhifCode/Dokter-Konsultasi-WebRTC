@@ -132,7 +132,13 @@ export default {
       doctorData: {},
       dialogVisible: false,
       dialogStart: false,
-      scheduling: { date: '2024-01-03', time_start: null, time_end: null },
+      scheduling: {
+        date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+        time_start: null,
+        time_end: null,
+      },
       start: '08:00',
       end: '16:00',
       newData: {},

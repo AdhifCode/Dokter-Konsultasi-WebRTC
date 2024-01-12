@@ -85,6 +85,7 @@ class RoomController extends Controller
                 'user_image' => $room->doctor->user->image,
                 'room_image' => $room->room_image,
                 'name' => $room->doctor->user->name,
+                'email' => $room->doctor->user->email,
                 'title' => $room->room_title,
                 'experience' => $room->doctor->experience,
                 'specialist' => $room->doctor->specialist->name,

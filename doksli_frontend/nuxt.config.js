@@ -19,10 +19,13 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: ['~/assets/global.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ['@/plugins/vue-tel-input-vuetify'],
+  plugins: [
+    '@/plugins/vue-tel-input-vuetify',
+    { src: '@/plugins/robin.js', mode: 'client' },
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -31,8 +34,8 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
-    'cookie-universal-nuxt',
     '@nuxtjs/moment',
+    '@nuxtjs/google-fonts',
   ],
 
   store: true,
@@ -41,6 +44,7 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    'cookie-universal-nuxt',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -52,6 +56,7 @@ export default {
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
+    treeShake: true,
     theme: {
       dark: false,
       themes: {
@@ -79,5 +84,12 @@ export default {
 
   moment: {
     defaultTimezone: 'Indonesia/Jakarta',
+  },
+
+  googleFonts: {
+    families: {
+      Lato: ['100', '300', '400', '700', '900'],
+      Poppins: ['100', '300', '400', '700', '900'],
+    },
   },
 }
